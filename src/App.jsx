@@ -4,7 +4,6 @@ import LoginPage from './pages/LoginPage.jsx';
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
-
   return (
     <div className="app-container">
 
@@ -31,6 +30,7 @@ export default function App() {
           <div>
             <h1 className="text-dark">Welcome to Vendora</h1>
             <p className="text-muted">Your favourite E-Commerce platform.</p>
+            <h2>test3</h2>
           </div>
         )}
 
