@@ -14,7 +14,7 @@ export default function LoginPage({ setActivePage }) {
             return;
         }
 
-        console.log('Login data ready for backend:', { email, password });
+        console.log('Login data ready for backend:', { email, passwordProvided: password.length > 0 });
         setErrorMessage('');
     };
 
