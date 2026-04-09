@@ -31,6 +31,7 @@ export default function App() {
           <div>
             <h1 className="text-dark">Welcome to Vendora</h1>
             <p className="text-muted">Your favourite E-Commerce platform.</p>
+            <h2>test</h2>
           </div>
         )}
 
