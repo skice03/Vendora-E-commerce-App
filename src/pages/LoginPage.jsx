@@ -6,7 +6,7 @@ export default function LoginPage({ setActivePage }) {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
         if (email === '' || password === '') {
@@ -14,8 +14,39 @@ export default function LoginPage({ setActivePage }) {
             return;
         }
 
-        console.log('Login data ready for backend:', { email, passwordProvided: password.length > 0 });
         setErrorMessage('');
+
+        try {
+            // send req to backend
+            const response = await fetch('http://localhost:5169/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                }),
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+
+                // save user data in browser storage
+                localStorage.setItem('user', JSON.stringify(userData));
+                console.log('Login successful:', userData);
+
+                setActivePage('home');
+
+                // refresh for navbar
+                window.location.reload();
+            } else {
+                const errorText = await response.text();
+                setErrorMessage(errorText || 'Invalid email or password.');
+            }
+        } catch (err) {
+            setErrorMessage('Connection to server failed. Make sure the API is running.');
+        }
     };
 
     return (
@@ -24,7 +55,7 @@ export default function LoginPage({ setActivePage }) {
                 <h2 className="login-title">Log In to Vendora</h2>
 
                 {errorMessage && (
-                    <div className="error-message">
+                    <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
                         {errorMessage}
                     </div>
                 )}
@@ -38,6 +69,7 @@ export default function LoginPage({ setActivePage }) {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@example.com"
+                            required
                         />
                     </div>
 
@@ -49,6 +81,7 @@ export default function LoginPage({ setActivePage }) {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="********"
+                            required
                         />
                     </div>
 

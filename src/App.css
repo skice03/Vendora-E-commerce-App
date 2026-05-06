@@ -25,6 +25,13 @@
 .nav-links {
   display: flex;
   gap: 15px;
+  align-items: center;
+}
+
+.welcome-msg {
+  font-size: 15px;
+  font-weight: 500;
+  color: #e5e7eb;
 }
 
 .btn-nav {
