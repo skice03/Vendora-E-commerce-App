@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import LoginPage from './pages/LoginPage.jsx';
+import Register from './pages/Register.jsx';
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
@@ -36,11 +37,13 @@ export default function App() {
 
         {activePage === 'login' && <LoginPage setActivePage={setActivePage} />}
 
-        {activePage === 'register' && (
+        {/* {activePage === 'register' && (
           <div>
             <h2 className="text-dark">Coming soon</h2>
           </div>
-        )}
+        )} */}
+
+        {activePage === 'register' && <Register />}
 
       </main>
     </div>
