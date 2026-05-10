@@ -14,6 +14,9 @@ import Layout from './components/layout/Layout.jsx';
 import ToastContainer from './components/ui/Toast.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import Register from './pages/Register.jsx';
+import HomePage from './pages/HomePage.jsx';
+import ProductsPage from './pages/ProductsPage.jsx';
+import ProductDetailPage from './pages/ProductDetailPage.jsx';
 
 // Dummy Pages for Phase 1 routing validation
 const DummyPage = ({ title }) => (
@@ -35,11 +38,11 @@ export default function App() {
             <Routes>
               {/* Public & Customer Routes wrapped in standard Layout */}
               <Route element={<Layout />}>
-                <Route path="/" element={<DummyPage title="Welcome to Vendora" />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/products" element={<DummyPage title="Product Catalog" />} />
-                <Route path="/products/:id" element={<DummyPage title="Product Details" />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<DummyPage title="Shopping Cart" />} />
                 <Route path="/checkout" element={<DummyPage title="Checkout" />} />
                 
