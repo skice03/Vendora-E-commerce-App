@@ -1,7 +1,11 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import './LoginPage.css';
 
-export default function LoginPage({ setActivePage }) {
+export default function LoginPage() {
+    const navigate = useNavigate();
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -32,14 +36,11 @@ export default function LoginPage({ setActivePage }) {
             if (response.ok) {
                 const userData = await response.json();
 
-                // save user data in browser storage
-                localStorage.setItem('user', JSON.stringify(userData));
+                // save user data via the new AuthContext
+                login(userData);
                 console.log('Login successful:', userData);
 
-                setActivePage('home');
-
-                // refresh for navbar
-                window.location.reload();
+                navigate('/');
             } else {
                 const errorText = await response.text();
                 setErrorMessage(errorText || 'Invalid email or password.');
@@ -92,16 +93,9 @@ export default function LoginPage({ setActivePage }) {
 
                 <p className="login-footer">
                     Don't have an account?{' '}
-                    <a
-                        href="#"
-                        className="login-link"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setActivePage('register');
-                        }}
-                    >
+                    <Link to="/register" className="login-link">
                         Register here
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

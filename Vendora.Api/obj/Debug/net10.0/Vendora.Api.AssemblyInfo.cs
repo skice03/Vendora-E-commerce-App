@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Vendora.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+af625276e961993107c67dedb11bdf2f6fdc9335")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e4a4e678d9133cd76edaf6378da144795187b313")]
 [assembly: System.Reflection.AssemblyProductAttribute("Vendora.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Vendora.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

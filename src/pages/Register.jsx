@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Register.css';
 
 export default function Register() {
@@ -101,6 +102,9 @@ export default function Register() {
 
                 <button type="submit">Register</button>
             </form>
+            <p style={{ marginTop: '15px', textAlign: 'center' }}>
+                Already have an account? <Link to="/login">Log in here</Link>
+            </p>
         </div>
     );
 }

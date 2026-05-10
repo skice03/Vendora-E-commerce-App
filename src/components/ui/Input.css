@@ -1,0 +1,98 @@
+/* ========================================
+   Vendora UI — Input Component
+   ======================================== */
+
+.vendora-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.vendora-input-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-gray-700);
+}
+
+.vendora-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.vendora-input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-gray-800);
+    background-color: var(--color-white);
+    border: 1.5px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    outline: none;
+}
+
+.vendora-input::placeholder {
+    color: var(--color-gray-400);
+}
+
+.vendora-input:hover {
+    border-color: var(--color-gray-400);
+}
+
+.vendora-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ---- With Icon ---- */
+
+.vendora-input--has-icon {
+    padding-left: var(--space-10);
+}
+
+.vendora-input-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-gray-400);
+    font-size: var(--font-size-lg);
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+
+.vendora-input:focus ~ .vendora-input-icon,
+.vendora-input-wrapper:focus-within .vendora-input-icon {
+    color: var(--color-primary);
+}
+
+/* ---- Error State ---- */
+
+.vendora-input--error {
+    border-color: var(--color-error);
+}
+
+.vendora-input--error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.vendora-input-error-text {
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: var(--space-1);
+}
+
+/* ---- Helper Text ---- */
+
+.vendora-input-helper {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+}
+
+/* ---- Disabled ---- */
+
+.vendora-input:disabled {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-400);
+    cursor: not-allowed;
+}

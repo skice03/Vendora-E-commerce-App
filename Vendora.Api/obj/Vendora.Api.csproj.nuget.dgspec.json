@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/marinel/Coding/Vendora/Vendora.Api/Vendora.Api.csproj": {}
+    "C:\\Users\\Alex\\Documents\\GitHub\\Vendora-E-commerce-App\\Vendora.Api\\Vendora.Api.csproj": {}
   },
   "projects": {
-    "/Users/marinel/Coding/Vendora/Vendora.Api/Vendora.Api.csproj": {
+    "C:\\Users\\Alex\\Documents\\GitHub\\Vendora-E-commerce-App\\Vendora.Api\\Vendora.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/marinel/Coding/Vendora/Vendora.Api/Vendora.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Alex\\Documents\\GitHub\\Vendora-E-commerce-App\\Vendora.Api\\Vendora.Api.csproj",
         "projectName": "Vendora.Api",
-        "projectPath": "/Users/marinel/Coding/Vendora/Vendora.Api/Vendora.Api.csproj",
-        "packagesPath": "/Users/marinel/.nuget/packages/",
-        "outputPath": "/Users/marinel/Coding/Vendora/Vendora.Api/obj/",
+        "projectPath": "C:\\Users\\Alex\\Documents\\GitHub\\Vendora-E-commerce-App\\Vendora.Api\\Vendora.Api.csproj",
+        "packagesPath": "C:\\Users\\Alex\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Alex\\Documents\\GitHub\\Vendora-E-commerce-App\\Vendora.Api\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/marinel/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Alex\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -86,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

@@ -1,73 +1,7 @@
-.app-container {
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  background-color: #f9fafb;
-}
+/* ========================================
+   Vendora — App Level Styles
+   Most styles have been moved to variables.css, 
+   index.css, and component-specific modules.
+   ======================================== */
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 40px;
-  background-color: #1f2937;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.brand-logo {
-  font-size: 25px;
-  font-weight: bold;
-  cursor: pointer;
-  letter-spacing: 1px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.welcome-msg {
-  font-size: 15px;
-  font-weight: 500;
-  color: #e5e7eb;
-}
-
-.btn-nav {
-  padding: 8px 16px;
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn-nav:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
-}
-
-.main-content {
-  padding: 50px;
-  text-align: center;
-}
-
-.text-dark {
-  color: #333;
-}
-
-.text-muted {
-  color: #666;
-}
+/* App-level specific overrides can go here if needed */

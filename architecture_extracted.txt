@@ -1,0 +1,46 @@
+Architecture Design 
+Information System for ECommerce Product and Order Management
+
+USE-CASE Diagram
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Relational Model Diagram
+
+
+
+
+
+
+
+
+
+
+Class Diagram
+
+
+Activity Diagram
+For logged in user
+
+
+
+
+
+Non logged user
+Admin User
+
+
