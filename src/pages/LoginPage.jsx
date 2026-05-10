@@ -1,103 +1,107 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import './LoginPage.css';
+import { useToast } from '../context/ToastContext.jsx';
+import { apiPost } from '../utils/api.js';
+
+// UI Components
+import Card, { CardBody } from '../components/ui/Card.jsx';
+import Input from '../components/ui/Input.jsx';
+import Button from '../components/ui/Button.jsx';
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
+    const { showError, showSuccess } = useToast();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        if (email === '' || password === '') {
-            setErrorMessage('Please fill in both fields.');
+        if (!email || !password) {
+            showError('Please fill in both email and password.');
             return;
         }
 
-        setErrorMessage('');
+        setIsLoading(true);
 
         try {
-            // send req to backend
-            const response = await fetch('http://localhost:5169/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                }),
+            // Using the new centralized api wrapper
+            const userData = await apiPost('/auth/login', {
+                email,
+                password
             });
 
-            if (response.ok) {
-                const userData = await response.json();
-
-                // save user data via the new AuthContext
-                login(userData);
-                console.log('Login successful:', userData);
-
-                navigate('/');
-            } else {
-                const errorText = await response.text();
-                setErrorMessage(errorText || 'Invalid email or password.');
-            }
+            // Save user data via the AuthContext
+            login(userData);
+            showSuccess('Welcome back!');
+            navigate('/');
+            
         } catch (err) {
-            setErrorMessage('Connection to server failed. Make sure the API is running.');
+            showError(err.message || 'Invalid email or password.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="login-wrapper">
-            <div className="login-card">
-                <h2 className="login-title">Log In to Vendora</h2>
-
-                {errorMessage && (
-                    <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
-                        {errorMessage}
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+            <Card variant="glass" style={{ width: '100%', maxWidth: '420px', padding: 'var(--space-6)' }}>
+                <CardBody>
+                    <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                        <h2 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 'var(--font-weight-extrabold)' }}>Welcome Back</h2>
+                        <p style={{ color: 'var(--color-gray-500)', marginTop: 'var(--space-2)' }}>Log in to your Vendora account</p>
                     </div>
-                )}
 
-                <form onSubmit={handleLogin} className="login-form">
-                    <div className="form-group">
-                        <label>Email Address</label>
-                        <input
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                        <Input
+                            label="Email Address"
                             type="email"
-                            className="form-input"
+                            name="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@example.com"
                             required
                         />
-                    </div>
 
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
+                        <Input
+                            label="Password"
                             type="password"
-                            className="form-input"
+                            name="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="********"
+                            placeholder="••••••••"
                             required
                         />
+
+                        <div style={{ textAlign: 'right', marginTop: '-var(--space-2)' }}>
+                            <a href="#" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)' }}>
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                        <Button 
+                            type="submit" 
+                            variant="primary" 
+                            fullWidth 
+                            isLoading={isLoading}
+                            style={{ marginTop: 'var(--space-2)' }}
+                        >
+                            Sign In
+                        </Button>
+                    </form>
+
+                    <div style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-gray-600)' }}>
+                        Don't have an account?{' '}
+                        <Link to="/register" style={{ fontWeight: 'var(--font-weight-bold)', color: 'var(--color-primary)' }}>
+                            Register here
+                        </Link>
                     </div>
-
-                    <button type="submit" className="btn-submit">
-                        Sign In
-                    </button>
-                </form>
-
-                <p className="login-footer">
-                    Don't have an account?{' '}
-                    <Link to="/register" className="login-link">
-                        Register here
-                    </Link>
-                </p>
-            </div>
+                </CardBody>
+            </Card>
         </div>
     );
 }
