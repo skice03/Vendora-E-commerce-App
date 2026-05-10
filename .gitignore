@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .NET / C# Build Folders
+[Bb]in/
+[Oo]bj/
+*.userprefs
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+*.sqlite
+*.sqlite3
