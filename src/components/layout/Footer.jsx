@@ -12,7 +12,7 @@ export default function Footer() {
         <footer className="vendora-footer">
             <div className="container">
                 <div className="vendora-footer__grid">
-                    
+
                     {/* Brand Info */}
                     <div className="vendora-footer__brand">
                         <Link to="/" className="vendora-footer__brand-logo">
@@ -51,7 +51,7 @@ export default function Footer() {
                         <ul className="vendora-footer__list">
                             <li className="vendora-footer__link">support@vendora.com</li>
                             <li className="vendora-footer__link">1-800-VENDORA</li>
-                            <li className="vendora-footer__link">123 Commerce St.<br/>Tech City, TC 90210</li>
+                            <li className="vendora-footer__link">123 Commerce St.<br />Tech City, TC 90210</li>
                         </ul>
                     </div>
 
@@ -60,8 +60,8 @@ export default function Footer() {
                 <div className="vendora-footer__bottom">
                     <p>&copy; {currentYear} Vendora Inc. All rights reserved.</p>
                     <div className="vendora-footer__socials">
-                        <a href="#" className="vendora-footer__social-link" aria-label="Twitter">𝕏</a>
-                        <a href="#" className="vendora-footer__social-link" aria-label="Facebook">f</a>
+                        {/* <a href="#" className="vendora-footer__social-link" aria-label="Twitter">𝕏</a>
+                        <a href="#" className="vendora-footer__social-link" aria-label="Facebook">f</a> */}
                         <a href="#" className="vendora-footer__social-link" aria-label="Instagram">IG</a>
                     </div>
                 </div>
