@@ -17,6 +17,7 @@ import Register from './pages/Register.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
+import CartPage from './pages/CartPage.jsx';
 
 // Dummy Pages for Phase 1 routing validation
 const DummyPage = ({ title }) => (
@@ -43,7 +44,7 @@ export default function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/cart" element={<DummyPage title="Shopping Cart" />} />
+                <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<DummyPage title="Checkout" />} />
                 
                 {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
