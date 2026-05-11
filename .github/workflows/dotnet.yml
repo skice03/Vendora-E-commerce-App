@@ -1,4 +1,4 @@
-name: .NET Backend CI
+name: .NET CI
 
 on:
   push:
