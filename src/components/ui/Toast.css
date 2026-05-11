@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora UI — Toast Notifications
-   ======================================== */
-
 .vendora-toast-container {
     position: fixed;
     top: var(--space-6);

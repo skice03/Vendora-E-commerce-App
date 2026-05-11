@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora UI — Navbar Component
-   ======================================== */
-
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';

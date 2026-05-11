@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora Design System — Animations
-   ======================================== */
-
 /* ---- Fade In ---- */
 @keyframes fadeIn {
     from {
@@ -158,10 +154,6 @@
         width: 100%;
     }
 }
-
-/* ========================================
-   Utility Animation Classes
-   ======================================== */
 
 .animate-fade-in {
     animation: fadeIn var(--transition-base) ease forwards;

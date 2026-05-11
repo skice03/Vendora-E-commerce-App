@@ -4,7 +4,6 @@ import { useToast } from '../context/ToastContext.jsx';
 import { apiPost } from '../utils/api.js';
 import { isValidPassword, isValidEmail } from '../utils/validators.js';
 
-// UI Components
 import Card, { CardBody } from '../components/ui/Card.jsx';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
@@ -18,10 +17,10 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     
-    // Field-specific validation errors for real-time feedback
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
+    // Validates the email format and enforces password length (REQ-04)
     const validateForm = () => {
         const newErrors = {};
         
@@ -34,8 +33,8 @@ export default function Register() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         if (!validateForm()) {
             return;
@@ -44,7 +43,7 @@ export default function Register() {
         setIsLoading(true);
 
         try {
-            // Using the new centralized API wrapper
+            // Submits registration form data (REQ-01)
             await apiPost('/auth/register', {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
@@ -78,7 +77,7 @@ export default function Register() {
                                 label="First Name"
                                 name="firstName"
                                 value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
+                                onChange={(event) => setFirstName(event.target.value)}
                                 placeholder="John"
                                 error={errors.firstName}
                                 required
@@ -87,7 +86,7 @@ export default function Register() {
                                 label="Last Name"
                                 name="lastName"
                                 value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
+                                onChange={(event) => setLastName(event.target.value)}
                                 placeholder="Doe"
                                 error={errors.lastName}
                                 required
@@ -99,7 +98,7 @@ export default function Register() {
                             type="email"
                             name="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(event) => setEmail(event.target.value)}
                             placeholder="name@example.com"
                             error={errors.email}
                             required
@@ -110,7 +109,7 @@ export default function Register() {
                             type="password"
                             name="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(event) => setPassword(event.target.value)}
                             placeholder="••••••••"
                             error={errors.password}
                             helperText="Must be at least 8 characters long"

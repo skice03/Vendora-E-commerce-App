@@ -19,14 +19,25 @@ namespace Vendora.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // we ensure the prices are saved as DECIMAL(10,2)
+            // Ensures the prices are saved as DECIMAL(10,2) (REQ-77 / Financial Rules)
             modelBuilder.Entity<Product>()
-                .Property(p => p.Price)
+                .Property(product => product.Price)
                 .HasPrecision(10, 2);
 
             modelBuilder.Entity<Order>()
-                .Property(o => o.TotalAmount)
+                .Property(order => order.TotalAmount)
                 .HasPrecision(10, 2);
+
+            // Seed default Administrator (REQ-02)
+            modelBuilder.Entity<User>().HasData(new User
+            {
+                Id = 1,
+                FirstName = "Marinel",
+                LastName = "Cipu",
+                Email = "marinelcipu21@gmail.com",
+                PasswordHash = "$2a$11$g1zVIcC.l0LBmG0xZ1V7Xe/GwoR9pfE/OXDdzzOgcW1iEN0yiDbSy", // 'adminvendora'
+                Role = "Admin"
+            });
         }
     }
 }

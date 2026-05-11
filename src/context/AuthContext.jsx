@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Auth Context
-   Manages user authentication state across the app
-   ======================================== */
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { STORAGE_KEYS, USER_ROLES } from '../utils/constants.js';
 
@@ -14,7 +9,6 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // on mount, check localStorage for an existing session
     useEffect(() => {
         const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
         if (savedUser) {
@@ -28,13 +22,13 @@ export function AuthProvider({ children }) {
         setIsLoading(false);
     }, []);
 
-    // login: save user data to state and localStorage
+    // Stores user data on successful login (REQ-08)
     function login(userData) {
         setUser(userData);
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
     }
 
-    // logout: clear user data from state and localStorage (REQ-10)
+    // Clears user data on logout (REQ-10)
     function logout() {
         setUser(null);
         localStorage.removeItem(STORAGE_KEYS.USER);

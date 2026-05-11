@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Homepage
-   Hero, categories, featured products
-   ======================================== */
-
 import { useNavigate, Link } from 'react-router-dom';
 import { mockProducts, mockCategories } from '../data/mockData.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
@@ -28,7 +23,7 @@ export default function HomePage() {
     const navigate = useNavigate();
 
     // Top-level categories only (no sub-categories in the hero section)
-    const topCategories = mockCategories.filter(c => c.parentCategoryId === null);
+    const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
 
     // Sort by rating descending, take top 4 for featured grid
     const featuredProducts = [...mockProducts]

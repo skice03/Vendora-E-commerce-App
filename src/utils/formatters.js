@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora — Formatting Utilities
-   ======================================== */
-
 import { CURRENCY_SYMBOL, CURRENCY_DECIMAL_PLACES } from './constants.js';
 
 /// Formats a decimal number as a currency string (e.g., $29.99)

@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Named Constants
-   Eliminates magic numbers per SRS quality rules
-   ======================================== */
-
 // API base URL for the C# backend
 export const API_BASE_URL = 'http://localhost:5169/api';
 

@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Input Component
-   Styled form input with label, icon, and validation
-   ======================================== */
-
 import './Input.css';
 
 /// Reusable form input with label, icon, error, and helper text support.

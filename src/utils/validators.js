@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora — Client-Side Validators
-   ======================================== */
-
 import { MIN_PASSWORD_LENGTH } from './constants.js';
 
 /// Validates an email address format (REQ-04)

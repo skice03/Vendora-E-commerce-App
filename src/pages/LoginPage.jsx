@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { apiPost } from '../utils/api.js';
 
-// UI Components
 import Card, { CardBody } from '../components/ui/Card.jsx';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
@@ -18,7 +17,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Am schimbat 'e' in 'event' conform SRS
     const handleLogin = async (event) => {
         event.preventDefault();
 
@@ -30,6 +28,7 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
+            // Submits login credentials (REQ-06) and receives session token (REQ-08)
             const userData = await apiPost('/auth/login', {
                 email,
                 password
@@ -61,7 +60,6 @@ export default function LoginPage() {
                             type="email"
                             name="email"
                             value={email}
-                            // Am schimbat 'e' in 'event'
                             onChange={(event) => setEmail(event.target.value)}
                             placeholder="name@example.com"
                             required
@@ -72,14 +70,12 @@ export default function LoginPage() {
                             type="password"
                             name="password"
                             value={password}
-                            // Am schimbat 'e' in 'event'
                             onChange={(event) => setPassword(event.target.value)}
                             placeholder="••••••••"
                             required
                         />
 
                         <div style={{ textAlign: 'right', marginTop: '-var(--space-2)' }}>
-                            {/* Am inlocuit <a href="#"> cu <Link> pentru viitoarea pagina de reset */}
                             <Link to="/forgot-password" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)', textDecoration: 'none' }}>
                                 Forgot Password?
                             </Link>
@@ -98,7 +94,6 @@ export default function LoginPage() {
 
                     <div style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-gray-600)' }}>
                         Don't have an account?{' '}
-                        {/* Aici folosim componenta Link a colegului, care e perfecta */}
                         <Link to="/register" style={{ fontWeight: 'var(--font-weight-bold)', color: 'var(--color-primary)' }}>
                             Register here
                         </Link>

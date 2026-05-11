@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Toast Component
-   Renders toast notifications from ToastContext
-   ======================================== */
-
 import { useToast } from '../../context/ToastContext.jsx';
 import './Toast.css';
 

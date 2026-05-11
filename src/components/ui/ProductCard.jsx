@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — ProductCard Component
-   Reusable card for displaying a product
-   ======================================== */
-
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -25,9 +20,9 @@ export default function ProductCard({ product }) {
         navigate(`/products/${product.id}`);
     }
 
-    function handleAddToCart(e) {
+    function handleAddToCart(event) {
         // stop click from also triggering handleCardClick
-        e.stopPropagation();
+        event.stopPropagation();
         if (isOutOfStock) return;
 
         try {

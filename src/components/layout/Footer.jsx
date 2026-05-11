@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora UI — Footer Component
-   ======================================== */
-
 import { Link } from 'react-router-dom';
 import './Footer.css';
 

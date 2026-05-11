@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Button Component
-   Reusable button with multiple variants
-   ======================================== */
-
 import './Button.css';
 
 /// Reusable button component with variant, size, loading, and fullWidth options.

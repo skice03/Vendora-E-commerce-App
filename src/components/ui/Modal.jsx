@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Modal Component
-   Accessible modal dialog with backdrop blur
-   ======================================== */
-
 import { useEffect } from 'react';
 import './Modal.css';
 

@@ -23,7 +23,7 @@ namespace Vendora.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] User user)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            if (await _context.Users.AnyAsync(userRecord => userRecord.Email == user.Email))
             {
                 return BadRequest("Email already registered.");
             }
@@ -41,7 +41,7 @@ namespace Vendora.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest loginData)
         {
-            var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginData.Email);
+            var dbUser = await _context.Users.FirstOrDefaultAsync(userRecord => userRecord.Email == loginData.Email);
 
             if (dbUser == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, dbUser.PasswordHash))
             {
@@ -56,14 +56,4 @@ namespace Vendora.Api.Controllers
             });
         }
     }
-
-    /// <summary>
-    /// Obiectul folosit pentru a prelua datele de login din frontend.
-    /// </summary>
-    public class LoginRequest
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
 }

@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Custom Hook: useFetch
-   Generic data fetching with loading and error states
-   ======================================== */
-
 import { useState, useEffect } from 'react';
 import { apiGet } from '../utils/api.js';
 

@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Product Detail Page
-   Image gallery, info, add to cart, reviews
-   ======================================== */
-
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { mockProducts, mockReviews } from '../data/mockData.js';
@@ -19,7 +14,7 @@ export default function ProductDetailPage() {
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
 
-    const product = mockProducts.find(p => p.id === Number(id));
+    const product = mockProducts.find(product => product.id === Number(id));
     const [activeImage, setActiveImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
 
@@ -40,7 +35,9 @@ export default function ProductDetailPage() {
         );
     }
 
-    const productReviews = mockReviews.filter(r => r.productId === product.id);
+    const productReviews = mockReviews.filter(review => review.productId === product.id);
+    
+    // Restricts checkout when stock is 0 (REQ-14, REQ-19)
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
 
@@ -127,12 +124,11 @@ export default function ProductDetailPage() {
 
                     <p className="product-info__description">{product.description}</p>
 
-                    {/* Add to Cart */}
                     <div className="add-to-cart">
                         <div className="quantity-selector">
                             <button
                                 className="quantity-selector__btn"
-                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                onClick={() => setQuantity(currentQuantity => Math.max(1, currentQuantity - 1))}
                                 disabled={quantity <= 1 || isOutOfStock}
                                 aria-label="Decrease quantity"
                             >
@@ -141,7 +137,7 @@ export default function ProductDetailPage() {
                             <span className="quantity-selector__value">{quantity}</span>
                             <button
                                 className="quantity-selector__btn"
-                                onClick={() => setQuantity(q => Math.min(product.stockQuantity, q + 1))}
+                                onClick={() => setQuantity(currentQuantity => Math.min(product.stockQuantity, currentQuantity + 1))}
                                 disabled={quantity >= product.stockQuantity || isOutOfStock}
                                 aria-label="Increase quantity"
                             >
@@ -160,12 +156,12 @@ export default function ProductDetailPage() {
                 </div>
             </div>
 
-            {/* Reviews Section */}
             <div className="reviews-section">
                 <h2 className="reviews-section__title">
                     Customer Reviews ({productReviews.length})
                 </h2>
 
+                {/* Renders list of reviews for the product (REQ-56, REQ-57) */}
                 {productReviews.length > 0 ? (
                     <div className="review-list">
                         {productReviews.map(review => (

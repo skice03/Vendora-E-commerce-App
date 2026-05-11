@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — API Helper
-   Centralized fetch wrapper with auth headers
-   ======================================== */
-
 import { API_BASE_URL, STORAGE_KEYS } from './constants.js';
 
 /// Retrieves the stored auth token from localStorage

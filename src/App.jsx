@@ -1,15 +1,9 @@
-/* ========================================
-   Vendora — Core Application
-   ======================================== */
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Context Providers
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 
-// Components
 import Layout from './components/layout/Layout.jsx';
 import ToastContainer from './components/ui/Toast.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -32,9 +26,9 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
           <ToastProvider>
-            
+
             <ToastContainer />
-            
+
             <Routes>
               {/* Public & Customer Routes wrapped in standard Layout */}
               <Route element={<Layout />}>
@@ -45,7 +39,7 @@ export default function App() {
                 <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<DummyPage title="Shopping Cart" />} />
                 <Route path="/checkout" element={<DummyPage title="Checkout" />} />
-                
+
                 {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
                 <Route path="/orders" element={<DummyPage title="My Orders" />} />
                 <Route path="/profile" element={<DummyPage title="My Profile" />} />

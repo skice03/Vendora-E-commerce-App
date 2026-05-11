@@ -1,7 +1,3 @@
-/* ========================================
-   Vendora — ProductsPage CSS
-   ======================================== */
-
 .products-page {
     display: grid;
     grid-template-columns: 260px 1fr;

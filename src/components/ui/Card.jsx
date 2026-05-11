@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Card Component
-   Glassmorphism card with hover effects
-   ======================================== */
-
 import './Card.css';
 
 /// Reusable card container with optional glass, bordered, or clickable variants.

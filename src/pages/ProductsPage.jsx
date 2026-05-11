@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Products Listing Page
-   Filter sidebar + sortable product grid
-   ======================================== */
-
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { mockProducts, mockCategories } from '../data/mockData.js';
@@ -27,7 +22,6 @@ const MIN_RATING_OPTIONS = [
 export default function ProductsPage() {
     const [searchParams] = useSearchParams();
 
-    // Filters state
     const initialCategory = Number(searchParams.get('category')) || 0;
     const [selectedCategory, setSelectedCategory] = useState(initialCategory);
     const [minPrice, setMinPrice] = useState('');
@@ -35,30 +29,27 @@ export default function ProductsPage() {
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('rating_desc');
 
-    // All parent categories for the sidebar
-    const topCategories = mockCategories.filter(c => c.parentCategoryId === null);
+    const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
 
-    // Apply filters & sort using useMemo for performance
+    // Filters products based on search criteria (REQ-16)
     const filteredProducts = useMemo(() => {
-        let result = mockProducts.filter(p => !p.isDeleted);
+        let result = mockProducts.filter(product => !product.isDeleted);
 
-        // Category filter: include parent and all children
         if (selectedCategory !== 0) {
             const childIds = mockCategories
-                .filter(c => c.parentCategoryId === selectedCategory)
-                .map(c => c.id);
+                .filter(category => category.parentCategoryId === selectedCategory)
+                .map(category => category.id);
             const validIds = [selectedCategory, ...childIds];
-            result = result.filter(p => validIds.includes(p.categoryId));
+            result = result.filter(product => validIds.includes(product.categoryId));
         }
 
-        // Price filter
-        if (minPrice !== '') result = result.filter(p => p.price >= Number(minPrice));
-        if (maxPrice !== '') result = result.filter(p => p.price <= Number(maxPrice));
+        // Apply Price range filter (REQ-16)
+        if (minPrice !== '') result = result.filter(product => product.price >= Number(minPrice));
+        if (maxPrice !== '') result = result.filter(product => product.price <= Number(maxPrice));
 
-        // Rating filter
-        if (minRating > 0) result = result.filter(p => p.averageRating >= minRating);
+        if (minRating > 0) result = result.filter(product => product.averageRating >= minRating);
 
-        // Sort
+        // Sorts products by dynamic attributes (REQ-51)
         switch (sortBy) {
             case 'price_asc':  result = [...result].sort((a, b) => a.price - b.price); break;
             case 'price_desc': result = [...result].sort((a, b) => b.price - a.price); break;
@@ -126,7 +117,7 @@ export default function ProductsPage() {
                             type="number"
                             placeholder="Min $"
                             value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
+                            onChange={(event) => setMinPrice(event.target.value)}
                             min={0}
                             aria-label="Minimum price"
                         />
@@ -135,7 +126,7 @@ export default function ProductsPage() {
                             type="number"
                             placeholder="Max $"
                             value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
+                            onChange={(event) => setMaxPrice(event.target.value)}
                             min={0}
                             aria-label="Maximum price"
                         />
@@ -173,7 +164,7 @@ export default function ProductsPage() {
                     <select
                         className="sort-select"
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
+                        onChange={(event) => setSortBy(event.target.value)}
                         aria-label="Sort products"
                     >
                         {SORT_OPTIONS.map(opt => (

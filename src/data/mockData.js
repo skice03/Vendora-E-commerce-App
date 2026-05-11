@@ -1,9 +1,3 @@
-/* ========================================
-   Vendora — Mock Data
-   Demo data for product catalog, categories,
-   orders, and reviews when the backend isn't seeded
-   ======================================== */
-
 // ---- Categories (REQ-52: multi-level parent-child) ----
 export const mockCategories = [
     { id: 1, name: 'Electronics', parentCategoryId: null },

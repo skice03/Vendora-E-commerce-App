@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora — Toast Context
-   App-wide notification system
-   ======================================== */
-
 import { createContext, useContext, useState, useCallback } from 'react';
 
 const ToastContext = createContext(null);

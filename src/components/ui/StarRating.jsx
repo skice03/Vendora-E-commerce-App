@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Star Rating Component
-   Display and interactive star rating (REQ-56)
-   ======================================== */
-
 import { useState } from 'react';
 import './StarRating.css';
 

@@ -1,8 +1,3 @@
-/* ========================================
-   Vendora UI — Spinner & Skeleton Components
-   Loading indicators
-   ======================================== */
-
 import './Spinner.css';
 
 /// Animated loading spinner with optional text.
