@@ -17,30 +17,29 @@ namespace Vendora.Api.Controllers
             _context = context;
         }
 
-        // registers a new user with a hashed password
+        /// <summary>
+        /// Registers a new user with a hashed password (REQ-03, REQ-08).
+        /// </summary>
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> RegisterAsync([FromBody] User user)
         {
-            // check if email exists already (REQ-02)
             if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             {
                 return BadRequest("Email already registered.");
             }
 
-            // encrypt password (REQ-03)
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-
-            // save to db
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Registration successful!" });
         }
 
-        // validate user credentials.
-
+        /// <summary>
+        /// Validates user credentials and returns user data (REQ-07, REQ-08).
+        /// </summary>
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginData)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest loginData)
         {
             var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginData.Email);
 
@@ -49,7 +48,6 @@ namespace Vendora.Api.Controllers
                 return Unauthorized("Invalid email or password.");
             }
 
-            // return user data
             return Ok(new
             {
                 id = dbUser.Id,
@@ -59,10 +57,13 @@ namespace Vendora.Api.Controllers
         }
     }
 
-    // request login data
+    /// <summary>
+    /// Obiectul folosit pentru a prelua datele de login din frontend.
+    /// </summary>
     public class LoginRequest
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
+
 }
