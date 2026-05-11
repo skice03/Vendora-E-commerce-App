@@ -4,7 +4,7 @@
    ======================================== */
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { STORAGE_KEYS, TAX_RATE, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
+import { STORAGE_KEYS, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import { useAuth } from './AuthContext.jsx';
 
 const CartContext = createContext(null);
@@ -116,15 +116,13 @@ export function CartProvider({ children }) {
     );
 
     const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_COST;
-    const taxAmount = subtotal * TAX_RATE;
-    const cartTotal = subtotal + shippingCost + taxAmount;
+    const cartTotal = subtotal + shippingCost;
 
     const contextValue = {
         cartItems,
         cartCount,
         subtotal,
         shippingCost,
-        taxAmount,
         cartTotal,
         addToCart,
         removeFromCart,
