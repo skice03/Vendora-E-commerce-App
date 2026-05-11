@@ -16,7 +16,6 @@ export default function CartPage() {
         cartCount,
         subtotal,
         shippingCost,
-        taxAmount,
         cartTotal,
         updateQuantity,
         removeFromCart,
@@ -187,11 +186,6 @@ export default function CartPage() {
                         ) : (
                             <span>{formatCurrency(shippingCost)}</span>
                         )}
-                    </div>
-
-                    <div className="summary-line">
-                        <span>Tax (8%)</span>
-                        <span>{formatCurrency(taxAmount)}</span>
                     </div>
 
                     <div className="summary-line summary-line--total">
