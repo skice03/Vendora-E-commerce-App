@@ -1,80 +1,61 @@
-import { useState, useEffect } from 'react';
-import './App.css';
+/* ========================================
+   Vendora — Core Application
+   ======================================== */
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// Context Providers
+import { AuthProvider } from './context/AuthContext.jsx';
+import { CartProvider } from './context/CartContext.jsx';
+import { ToastProvider } from './context/ToastContext.jsx';
+
+// Components
+import Layout from './components/layout/Layout.jsx';
+import ToastContainer from './components/ui/Toast.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import Register from './pages/Register.jsx';
+import HomePage from './pages/HomePage.jsx';
+import ProductsPage from './pages/ProductsPage.jsx';
+import ProductDetailPage from './pages/ProductDetailPage.jsx';
+
+// Dummy Pages for Phase 1 routing validation
+const DummyPage = ({ title }) => (
+  <div className="container" style={{ padding: '40px 20px', textAlign: 'center' }}>
+    <h1 className="text-dark">{title}</h1>
+    <p className="text-muted">This page will be fully implemented in a later phase.</p>
+  </div>
+);
 
 export default function App() {
-  const [activePage, setActivePage] = useState('home');
-  const [user, setUser] = useState(null); // logged in user 
-
-  // check for any user in browser
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  // log out
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    setActivePage('home');
-  };
-
   return (
-    <div className="app-container">
-      {/* navbar */}
-      <nav className="navbar">
-        <div className="brand-logo" onClick={() => setActivePage('home')}>
-          Vendora
-        </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <ToastProvider>
+            
+            <ToastContainer />
+            
+            <Routes>
+              {/* Public & Customer Routes wrapped in standard Layout */}
+              <Route element={<Layout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/cart" element={<DummyPage title="Shopping Cart" />} />
+                <Route path="/checkout" element={<DummyPage title="Checkout" />} />
+                
+                {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
+                <Route path="/orders" element={<DummyPage title="My Orders" />} />
+                <Route path="/profile" element={<DummyPage title="My Profile" />} />
+                <Route path="/wishlist" element={<DummyPage title="My Wishlist" />} />
+              </Route>
+            </Routes>
 
-        <div className="nav-links">
-          {/* check if user exists */}
-          {user ? (
-            <>
-              <span className="welcome-msg" style={{ marginRight: '15px' }}>Hello, {user.firstName}!</span>
-              {user.role === 'Admin' && (
-                <button className="btn-nav" onClick={() => setActivePage('admin')}>Dashboard</button>
-              )}
-              <button className="btn-nav" onClick={handleLogout}>Log Out</button>
-            </>
-          ) : (
-            <>
-              <button className="btn-nav" onClick={() => setActivePage('login')}>
-                Log In
-              </button>
-              <button className="btn-nav btn-primary" onClick={() => setActivePage('register')}>
-                Register
-              </button>
-            </>
-          )}
-        </div>
-      </nav>
-
-      {/* main */}
-      <main className="main-content">
-        {activePage === 'home' && (
-          <div>
-            <h1 className="text-dark">Welcome to Vendora</h1>
-            <p className="text-muted">Your favourite E-Commerce platform.</p>
-          </div>
-        )}
-
-        {activePage === 'login' && <LoginPage setActivePage={setActivePage} />}
-
-        {/* ensure Register setActivePage */}
-        {activePage === 'register' && <Register setActivePage={setActivePage} />}
-
-        {/* admin page */}
-        {activePage === 'admin' && user?.role === 'Admin' && (
-          <div>
-            <h1 className="text-dark">Admin Dashboard</h1>
-            <p>Management options coming soon...</p>
-          </div>
-        )}
-      </main>
-    </div>
+          </ToastProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

@@ -1,0 +1,163 @@
+/* ========================================
+   Vendora UI — Navbar Component
+   ======================================== */
+
+.vendora-navbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-navbar);
+    background: var(--bg-navbar);
+    color: var(--color-white);
+    box-shadow: var(--shadow-md);
+    height: var(--navbar-height);
+}
+
+.vendora-navbar__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.vendora-navbar__brand {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-white);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.vendora-navbar__brand:hover {
+    color: var(--color-primary-light);
+}
+
+.vendora-navbar__brand-icon {
+    color: var(--color-primary);
+}
+
+.vendora-navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.vendora-navbar__link {
+    color: var(--color-gray-300);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-2) 0;
+    position: relative;
+}
+
+.vendora-navbar__link:hover,
+.vendora-navbar__link.active {
+    color: var(--color-white);
+}
+
+.vendora-navbar__link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-primary);
+    transition: width var(--transition-base);
+}
+
+.vendora-navbar__link:hover::after,
+.vendora-navbar__link.active::after {
+    width: 100%;
+}
+
+.vendora-navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.vendora-navbar__icon-btn {
+    position: relative;
+    color: var(--color-gray-300);
+    font-size: var(--font-size-xl);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.vendora-navbar__icon-btn:hover {
+    color: var(--color-white);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.vendora-navbar__badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--color-error);
+    color: var(--color-white);
+    font-size: 0.65rem;
+    font-weight: var(--font-weight-bold);
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    transform: translate(25%, -25%);
+    border: 2px solid var(--bg-navbar);
+}
+
+.vendora-navbar__user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-left: var(--space-2);
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-gray-700);
+}
+
+.vendora-navbar__greeting {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-300);
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .vendora-navbar__greeting {
+        display: block;
+    }
+}
+
+/* Mobile Menu Toggle */
+.vendora-navbar__mobile-toggle {
+    display: none;
+    color: var(--color-white);
+    background: transparent;
+    border: none;
+    font-size: var(--font-size-2xl);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .vendora-navbar__mobile-toggle {
+        display: block;
+    }
+
+    .vendora-navbar__nav {
+        display: none; /* Hide desktop nav on mobile for now */
+    }
+    
+    .vendora-navbar__user {
+        border-left: none;
+        padding-left: 0;
+    }
+}
