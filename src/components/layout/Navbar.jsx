@@ -34,7 +34,7 @@ export default function Navbar() {
                 {/* Actions & User Menu */}
                 <div className="vendora-navbar__actions">
                     
-                    {/* Cart Icon */}
+                    {/* Cart Icon (REQ-22) */}
                     <Link to="/cart" className="vendora-navbar__icon-btn" aria-label="Shopping Cart">
                         🛒
                         {cartCount > 0 && (

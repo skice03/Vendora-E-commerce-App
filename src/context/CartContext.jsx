@@ -1,14 +1,19 @@
+
+
 import { createContext, useContext, useState, useEffect } from 'react';
-import { STORAGE_KEYS, TAX_RATE, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
+import { STORAGE_KEYS, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import { useAuth } from './AuthContext.jsx';
 
 const CartContext = createContext(null);
 
 /// Provides cart state and actions.
+/// Guest carts are stored in localStorage (REQ-21).
+/// Authenticated user carts will sync with the backend API in future phases.
 export function CartProvider({ children }) {
     const { isAuthenticated } = useAuth();
     const [cartItems, setCartItems] = useState([]);
 
+    // load cart from localStorage on mount
     useEffect(() => {
         const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
         if (savedCart) {
@@ -20,6 +25,7 @@ export function CartProvider({ children }) {
         }
     }, []);
 
+    // persist cart to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
     }, [cartItems]);
@@ -31,6 +37,7 @@ export function CartProvider({ children }) {
             const existingIndex = currentItems.findIndex(item => item.productId === product.id);
 
             if (existingIndex >= 0) {
+                // item already in cart — update quantity
                 const updatedItems = [...currentItems];
                 const newQuantity = updatedItems[existingIndex].quantity + quantity;
 
@@ -46,6 +53,7 @@ export function CartProvider({ children }) {
                 return updatedItems;
             }
 
+            // new item — validate stock before adding
             if (quantity > product.stockQuantity) {
                 return currentItems;
             }
@@ -72,7 +80,7 @@ export function CartProvider({ children }) {
     }
 
     /// Update the quantity of a specific cart item.
-    /// Setting quantity to 0 removes the item (Section 4.5.2).
+    /// Setting quantity to 0 removes the item (REQ — stimulus/response for cart).
     function updateQuantity(productId, newQuantity) {
         if (newQuantity <= 0) {
             removeFromCart(productId);
@@ -105,15 +113,13 @@ export function CartProvider({ children }) {
     );
 
     const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_COST;
-    const taxAmount = subtotal * TAX_RATE;
-    const cartTotal = subtotal + shippingCost + taxAmount;
+    const cartTotal = subtotal + shippingCost;
 
     const contextValue = {
         cartItems,
         cartCount,
         subtotal,
         shippingCost,
-        taxAmount,
         cartTotal,
         addToCart,
         removeFromCart,
