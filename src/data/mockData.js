@@ -324,3 +324,5 @@ export const mockUsers = [
     { id: 4, firstName: 'Emily', lastName: 'Davis', email: 'emily@example.com', role: 'Customer' },
     { id: 5, firstName: 'James', lastName: 'Wilson', email: 'james@example.com', role: 'Customer' },
 ];
+
+// test admin user: 
