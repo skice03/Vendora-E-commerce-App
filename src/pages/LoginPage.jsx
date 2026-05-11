@@ -92,16 +92,21 @@ export default function LoginPage({ setActivePage }) {
 
                 <p className="login-footer">
                     Don't have an account?{' '}
-                    <a
-                        href="#"
-                        className="login-link"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setActivePage('register');
+                    <button
+                        className="login-link-btn" // Folosim o clasă nouă pentru stilizare
+                        onClick={() => setActivePage('register')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#007BFF',
+                            cursor: 'pointer',
+                            padding: 0,
+                            font: 'inherit',
+                            textDecoration: 'underline'
                         }}
                     >
                         Register here
-                    </a>
+                    </button>
                 </p>
             </div>
         </div>
