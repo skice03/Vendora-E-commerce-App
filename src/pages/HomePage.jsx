@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { mockProducts, mockCategories } from '../data/mockData.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
+import { FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import './HomePage.css';
 
 // Map category names to emojis for visual appeal
@@ -128,7 +129,7 @@ export default function HomePage() {
                 <div className="container">
                     <div className="promo-banner">
                         <div className="promo-banner__content">
-                            <h2>🚚 Free Shipping on Orders Over $50</h2>
+                            <h2>🚚 Free Shipping on Orders Over ${FREE_SHIPPING_THRESHOLD}</h2>
                             <p>
                                 Enjoy fast, reliable delivery right to your door with no minimum
                                 fuss on qualifying orders.

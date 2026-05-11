@@ -1,3 +1,5 @@
+
+
 // API base URL for the C# backend
 export const API_BASE_URL = 'http://localhost:5169/api';
 
@@ -44,8 +46,6 @@ export const CURRENCY_DECIMAL_PLACES = 2;
 export const DEFAULT_SHIPPING_COST = 9.99;
 export const FREE_SHIPPING_THRESHOLD = 75.00;
 
-// tax rate placeholder
-export const TAX_RATE = 0.08;
 
 // local storage keys
 export const STORAGE_KEYS = {
