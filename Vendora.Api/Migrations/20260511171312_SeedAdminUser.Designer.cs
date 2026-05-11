@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendora.Api.Data;
 
@@ -10,9 +11,11 @@ using Vendora.Api.Data;
 namespace Vendora.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511171312_SeedAdminUser")]
+    partial class SeedAdminUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,7 +119,7 @@ namespace Vendora.Api.Migrations
                             Email = "marinelcipu21@gmail.com",
                             FirstName = "Marinel",
                             LastName = "Cipu",
-                            PasswordHash = "$2a$11$g1zVIcC.l0LBmG0xZ1V7Xe/GwoR9pfE/OXDdzzOgcW1iEN0yiDbSy",
+                            PasswordHash = "$2a$11$R1HkrgBuOKZBCCyZWVo0N.L9bACEecJqEdWsZvrMmGQiqPeWrN15i",
                             Role = "Admin"
                         });
                 });

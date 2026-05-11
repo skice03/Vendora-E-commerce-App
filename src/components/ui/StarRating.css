@@ -1,0 +1,58 @@
+.vendora-star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.vendora-star {
+    font-size: var(--font-size-xl);
+    cursor: default;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+    color: var(--color-gray-300);
+    user-select: none;
+    line-height: 1;
+}
+
+.vendora-star--filled {
+    color: #fbbf24;
+}
+
+.vendora-star--half {
+    position: relative;
+    color: var(--color-gray-300);
+}
+
+.vendora-star--half::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: #fbbf24;
+}
+
+/* Interactive mode (for review forms) */
+.vendora-star-rating--interactive .vendora-star {
+    cursor: pointer;
+}
+
+.vendora-star-rating--interactive .vendora-star:hover {
+    transform: scale(1.2);
+}
+
+/* Size variants */
+.vendora-star-rating--sm .vendora-star {
+    font-size: var(--font-size-base);
+}
+
+.vendora-star-rating--lg .vendora-star {
+    font-size: var(--font-size-2xl);
+}
+
+.vendora-star-rating__count {
+    margin-left: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    font-weight: var(--font-weight-medium);
+}

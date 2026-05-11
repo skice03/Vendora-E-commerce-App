@@ -1,6 +1,8 @@
 namespace Vendora.Api.Models
 {
-    // represents a registered customer or administrator in the system
+    /// <summary>
+    /// Represents a registered customer or administrator in the system.
+    /// </summary>
     public class User
     {
         public int Id { get; set; }
@@ -8,6 +10,6 @@ namespace Vendora.Api.Models
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
-        public string Role { get; set; } = "Customer"; // default role
+        public string Role { get; set; } = "Customer";
     }
 }

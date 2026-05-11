@@ -1,0 +1,98 @@
+.vendora-toast-container {
+    position: fixed;
+    top: var(--space-6);
+    right: var(--space-6);
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    pointer-events: none;
+}
+
+.vendora-toast {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    min-width: 300px;
+    max-width: 420px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    pointer-events: all;
+    animation: slideInRight var(--transition-slow) ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.vendora-toast--exiting {
+    animation: slideOutRight var(--transition-base) ease forwards;
+}
+
+.vendora-toast--success {
+    background-color: var(--color-success-light);
+    border-left: 4px solid var(--color-success);
+    color: #065f46;
+}
+
+.vendora-toast--error {
+    background-color: var(--color-error-light);
+    border-left: 4px solid var(--color-error);
+    color: #991b1b;
+}
+
+.vendora-toast--warning {
+    background-color: var(--color-warning-light);
+    border-left: 4px solid var(--color-warning);
+    color: #92400e;
+}
+
+.vendora-toast--info {
+    background-color: var(--color-info-light);
+    border-left: 4px solid var(--color-info);
+    color: #1e40af;
+}
+
+.vendora-toast__icon {
+    font-size: var(--font-size-xl);
+    flex-shrink: 0;
+}
+
+.vendora-toast__message {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-normal);
+}
+
+.vendora-toast__close {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-sm);
+    transition: opacity var(--transition-fast);
+    color: inherit;
+}
+
+.vendora-toast__close:hover {
+    opacity: 1;
+}
+
+@media (max-width: 480px) {
+    .vendora-toast-container {
+        left: var(--space-4);
+        right: var(--space-4);
+    }
+
+    .vendora-toast {
+        min-width: 0;
+        max-width: 100%;
+    }
+}

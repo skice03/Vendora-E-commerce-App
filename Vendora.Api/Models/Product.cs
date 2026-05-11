@@ -10,7 +10,7 @@ namespace Vendora.Api.Models
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// We must use the decimal data type for all financial calculations.
+        /// Ensures financial precision (REQ-77).
         /// </summary>
         public decimal Price { get; set; }
 
@@ -19,6 +19,7 @@ namespace Vendora.Api.Models
         /// </summary>
         public int StockQuantity { get; set; }
 
+        // Soft deletion flag (REQ-37)
         public bool IsDeleted { get; set; } = false;
     }
 }

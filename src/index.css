@@ -1,17 +1,146 @@
-* {
-  box-sizing: border-box;
+@import './styles/variables.css';
+@import './styles/animations.css';
+
+/* ---- Reset & Base ---- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-html,
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #f9fafb;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-gray-800);
+    background-color: var(--bg-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
 }
 
 #root {
-  width: 100%;
-  min-height: 100vh;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---- Typography Defaults ---- */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-gray-900);
+}
+
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-base); }
+
+p {
+    color: var(--color-gray-600);
+    line-height: var(--line-height-relaxed);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+/* ---- Images ---- */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ---- Lists ---- */
+ul, ol {
+    list-style: none;
+}
+
+/* ---- Buttons ---- */
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* ---- Inputs ---- */
+input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* ---- Focus Styles ---- */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-400);
+}
+
+/* ---- Selection ---- */
+::selection {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+/* ---- Container Utility ---- */
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}
+
+/* ---- Visually Hidden (accessibility) ---- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
 }

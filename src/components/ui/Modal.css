@@ -1,0 +1,81 @@
+.vendora-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--bg-overlay);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    animation: fadeIn var(--transition-fast) ease;
+}
+
+.vendora-modal {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: var(--z-modal);
+    animation: scaleIn var(--transition-base) ease;
+}
+
+.vendora-modal--lg {
+    max-width: 700px;
+}
+
+.vendora-modal--sm {
+    max-width: 380px;
+}
+
+.vendora-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.vendora-modal__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.vendora-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background-color: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-gray-500);
+    font-size: var(--font-size-lg);
+    transition: all var(--transition-fast);
+}
+
+.vendora-modal__close:hover {
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+}
+
+.vendora-modal__body {
+    padding: var(--space-6);
+}
+
+.vendora-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6) var(--space-6);
+    border-top: 1px solid var(--color-gray-100);
+}
