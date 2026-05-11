@@ -14,7 +14,7 @@ export default function ProductCard({ product }) {
 
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
-    const mainImage = product.images?.[0];
+    const mainImage = product.imageUrl;
 
     function handleCardClick() {
         navigate(`/products/${product.id}`);
@@ -65,12 +65,11 @@ export default function ProductCard({ product }) {
 
             {/* Body */}
             <div className="product-card__body">
-                <p className="product-card__category">{product.categoryName}</p>
                 <h3 className="product-card__name">{product.name}</h3>
                 <div className="product-card__rating">
-                    <StarRating rating={product.averageRating} size="sm" />
+                    <StarRating rating={product.averageRating || 5} size="sm" />
                     <span className="product-card__reviews">
-                        ({product.averageRating?.toFixed(1)})
+                        ({(product.averageRating || 5).toFixed(1)})
                     </span>
                 </div>
             </div>

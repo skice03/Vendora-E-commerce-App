@@ -14,18 +14,30 @@ namespace Vendora.Api.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Ensures the prices are saved as DECIMAL(10,2) (REQ-77 / Financial Rules)
+            // and enforces SKU uniqueness (REQ-36)
             modelBuilder.Entity<Product>()
                 .Property(product => product.Price)
                 .HasPrecision(10, 2);
 
+            modelBuilder.Entity<Product>()
+                .HasIndex(product => product.Sku)
+                .IsUnique();
+
             modelBuilder.Entity<Order>()
                 .Property(order => order.TotalAmount)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(item => item.UnitPrice)
                 .HasPrecision(10, 2);
 
             // Seed default Administrator (REQ-02)

@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { mockProducts, mockCategories } from '../data/mockData.js';
+import { mockCategories } from '../data/mockData.js';
+import { apiGet } from '../utils/api.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import './ProductsPage.css';
 
@@ -29,11 +30,31 @@ export default function ProductsPage() {
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('rating_desc');
 
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setIsLoading(true);
+                // Fetch only active products
+                const data = await apiGet('/products');
+                setProducts(data);
+            } catch (err) {
+                setError('Failed to load products: ' + err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
+
     const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
 
     // Filters products based on search criteria (REQ-16)
     const filteredProducts = useMemo(() => {
-        let result = mockProducts.filter(product => !product.isDeleted);
+        let result = products;
 
         if (selectedCategory !== 0) {
             const childIds = mockCategories
@@ -47,19 +68,19 @@ export default function ProductsPage() {
         if (minPrice !== '') result = result.filter(product => product.price >= Number(minPrice));
         if (maxPrice !== '') result = result.filter(product => product.price <= Number(maxPrice));
 
-        if (minRating > 0) result = result.filter(product => product.averageRating >= minRating);
+        if (minRating > 0) result = result.filter(product => (product.averageRating || 5) >= minRating);
 
         // Sorts products by dynamic attributes (REQ-51)
         switch (sortBy) {
             case 'price_asc':  result = [...result].sort((a, b) => a.price - b.price); break;
             case 'price_desc': result = [...result].sort((a, b) => b.price - a.price); break;
             case 'name_asc':   result = [...result].sort((a, b) => a.name.localeCompare(b.name)); break;
-            case 'popular':    result = [...result].sort((a, b) => b.viewCount - a.viewCount); break;
-            default:           result = [...result].sort((a, b) => b.averageRating - a.averageRating);
+            case 'popular':    result = [...result].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)); break;
+            default:           result = [...result].sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5));
         }
 
         return result;
-    }, [selectedCategory, minPrice, maxPrice, minRating, sortBy]);
+    }, [products, selectedCategory, minPrice, maxPrice, minRating, sortBy]);
 
     function handleClearFilters() {
         setSelectedCategory(0);
@@ -159,7 +180,7 @@ export default function ProductsPage() {
                 <div className="products-toolbar">
                     <p className="products-toolbar__count">
                         Showing <strong>{filteredProducts.length}</strong> of{' '}
-                        <strong>{mockProducts.length}</strong> products
+                        <strong>{products.length}</strong> products
                     </p>
                     <select
                         className="sort-select"
@@ -174,7 +195,11 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Product Grid or Empty State */}
-                {filteredProducts.length > 0 ? (
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '4rem 0' }}>Loading products...</div>
+                ) : error ? (
+                    <div className="alert alert-danger">{error}</div>
+                ) : filteredProducts.length > 0 ? (
                     <div className="product-grid">
                         {filteredProducts.map(product => (
                             <ProductCard key={product.id} product={product} />

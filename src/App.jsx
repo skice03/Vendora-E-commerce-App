@@ -17,6 +17,13 @@ import ProductsPage from './pages/ProductsPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 
+// Admin
+import AdminRoute from './components/layout/AdminRoute.jsx';
+import AdminProductsPage from './pages/admin/AdminProductsPage.jsx';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
+import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx';
+import AdminDashboardOverview from './pages/admin/AdminDashboardOverview.jsx';
+
 // Dummy Pages for Phase 1 routing validation
 const DummyPage = ({ title }) => (
   <div className="container" style={{ padding: '40px 20px', textAlign: 'center' }}>
@@ -49,6 +56,16 @@ export default function App() {
                 <Route path="/orders" element={<DummyPage title="My Orders" />} />
                 <Route path="/profile" element={<DummyPage title="My Profile" />} />
                 <Route path="/wishlist" element={<DummyPage title="My Wishlist" />} />
+              </Route>
+
+              {/* Admin Routes (No standard layout, or separate admin layout) */}
+                <Route element={<AdminRoute />}>
+                <Route element={<Layout />}>
+                    <Route path="/admin" element={<AdminDashboardOverview />} />
+                    <Route path="/admin/products" element={<AdminProductsPage />} />
+                    <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                    <Route path="/admin/reviews" element={<AdminReviewsPage />} />
+                </Route>
               </Route>
             </Routes>
 

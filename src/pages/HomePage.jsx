@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { mockProducts, mockCategories } from '../data/mockData.js';
+import { mockCategories } from '../data/mockData.js';
+import { apiGet } from '../utils/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import { FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import './HomePage.css';
@@ -22,14 +25,29 @@ const CATEGORY_ICONS = {
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
     // Top-level categories only (no sub-categories in the hero section)
     const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
 
-    // Sort by rating descending, take top 4 for featured grid
-    const featuredProducts = [...mockProducts]
-        .sort((a, b) => b.averageRating - a.averageRating)
-        .slice(0, 4);
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const data = await apiGet('/products');
+                // Sort by rating descending, take top 4 for featured grid
+                const top = data.sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5)).slice(0, 4);
+                setFeaturedProducts(top);
+            } catch (err) {
+                console.error("Failed to load featured products", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     return (
         <main>
@@ -49,9 +67,11 @@ export default function HomePage() {
                         <Link to="/products" className="hero__btn-primary">
                             Shop Now
                         </Link>
-                        <Link to="/register" className="hero__btn-secondary">
-                            Create Account
-                        </Link>
+                        {!isAuthenticated && (
+                            <Link to="/register" className="hero__btn-secondary">
+                                Create Account
+                            </Link>
+                        )}
                     </div>
                 </div>
             </section>
@@ -117,9 +137,19 @@ export default function HomePage() {
                         <Link to="/products" className="section-link">See all products →</Link>
                     </div>
                     <div className="product-grid">
-                        {featuredProducts.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
+                        {isLoading ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                                Loading products...
+                            </div>
+                        ) : featuredProducts.length > 0 ? (
+                            featuredProducts.map(product => (
+                                <ProductCard key={product.id} product={product} />
+                            ))
+                        ) : (
+                            <div style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                                No products available yet.
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
