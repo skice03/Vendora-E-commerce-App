@@ -1,11 +1,22 @@
-Information System for ECommerce Product and Order Management
-
 # Vendora - E-Commerce App
 
-A modern application for e-commerce product and order management, built with **React** and **Vite** as of right now.
+A full-stack e-commerce management system with a **React** frontend and **ASP.NET Core** backend.
 
-## How to run
+## 🚀 Features
+- **Product Catalog** & **Shopping Cart** integration.
+- **User Authentication** (Login/Register).
 
-1. Open your terminal in the project folder.
-2. Run `npm install` to download dependencies.
-3. Run `npm run dev` to start the application.
+---
+
+## 🛠️ How to Run
+
+### 1. Backend (.NET)
+cd Vendora.Api
+# Update connection string in appsettings.json
+dotnet run
+
+### 2. Frontend (React)
+
+# From the root folder
+npm install
+npm run dev
