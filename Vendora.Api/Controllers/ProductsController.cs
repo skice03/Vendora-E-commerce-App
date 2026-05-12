@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,38 +19,68 @@ namespace Vendora.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves all products (REQ-35).
+        /// Retrieves all products with category names (REQ-35, REQ-13).
         /// Admins see all products including soft-deleted ones if requested.
-        /// Public users should only see active products (handled by filtering IsDeleted).
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetProducts([FromQuery] bool includeDeleted = false)
+        public async Task<IActionResult> GetProductsAsync([FromQuery] bool includeDeleted = false)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products
+                .Include(product => product.Category)
+                .AsQueryable();
 
             if (!includeDeleted)
             {
-                query = query.Where(p => !p.IsDeleted);
+                query = query.Where(product => !product.IsDeleted);
             }
 
-            var products = await query.ToListAsync();
+            var products = await query
+                .Select(product => new
+                {
+                    product.Id,
+                    product.Sku,
+                    product.Name,
+                    product.Description,
+                    product.Price,
+                    product.StockQuantity,
+                    product.CategoryId,
+                    CategoryName = product.Category != null ? product.Category.Name : "Uncategorized",
+                    product.ImageUrl,
+                    product.IsDeleted
+                })
+                .ToListAsync();
+
             return Ok(products);
         }
 
         /// <summary>
-        /// Retrieves a single product by ID.
+        /// Retrieves a single product by ID with category name (REQ-13).
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduct(int id)
+        public async Task<IActionResult> GetProductAsync(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(product => product.Category)
+                .FirstOrDefaultAsync(product => product.Id == id);
 
             if (product == null || product.IsDeleted)
             {
                 return NotFound(new { message = "Product not found." });
             }
 
-            return Ok(product);
+            return Ok(new
+            {
+                product.Id,
+                product.Sku,
+                product.Name,
+                product.Description,
+                product.Price,
+                product.StockQuantity,
+                product.CategoryId,
+                CategoryName = product.Category != null ? product.Category.Name : "Uncategorized",
+                product.ImageUrl,
+                product.IsDeleted
+            });
         }
 
         /// <summary>
@@ -58,10 +89,10 @@ namespace Vendora.Api.Controllers
         /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProductAsync([FromBody] Product product)
         {
             // Verify SKU uniqueness (REQ-36)
-            if (await _context.Products.AnyAsync(p => p.Sku == product.Sku))
+            if (await _context.Products.AnyAsync(existingProduct => existingProduct.Sku == product.Sku))
             {
                 return BadRequest(new { message = "A product with this SKU already exists." });
             }
@@ -69,7 +100,7 @@ namespace Vendora.Api.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProducts), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(GetProductsAsync), new { id = product.Id }, product);
         }
 
         /// <summary>
@@ -78,7 +109,7 @@ namespace Vendora.Api.Controllers
         /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> UpdateProductAsync(int id, [FromBody] Product updatedProduct)
         {
             if (id != updatedProduct.Id)
             {
@@ -92,7 +123,7 @@ namespace Vendora.Api.Controllers
             }
 
             // Check SKU uniqueness if it was changed
-            if (product.Sku != updatedProduct.Sku && await _context.Products.AnyAsync(p => p.Sku == updatedProduct.Sku))
+            if (product.Sku != updatedProduct.Sku && await _context.Products.AnyAsync(existingProduct => existingProduct.Sku == updatedProduct.Sku))
             {
                 return BadRequest(new { message = "A product with this SKU already exists." });
             }
@@ -104,7 +135,6 @@ namespace Vendora.Api.Controllers
             product.StockQuantity = updatedProduct.StockQuantity;
             product.CategoryId = updatedProduct.CategoryId;
             product.ImageUrl = updatedProduct.ImageUrl;
-            // Admin can restore a deleted product by passing IsDeleted = false
             product.IsDeleted = updatedProduct.IsDeleted;
 
             await _context.SaveChangesAsync();
@@ -115,10 +145,11 @@ namespace Vendora.Api.Controllers
         /// <summary>
         /// Performs a soft-delete on a product (REQ-37).
         /// Verifies administrator role (REQ-34).
+        /// Hard-deletes associated reviews for data cleanup.
         /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProductAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
@@ -127,15 +158,16 @@ namespace Vendora.Api.Controllers
             }
 
             product.IsDeleted = true; // Soft delete for order history integrity
-            
-            // Task 1: Automatically delete associated reviews
-            var reviews = await _context.Reviews.Where(r => r.ProductId == id).ToListAsync();
+
+            // Automatically delete associated reviews
+            var reviews = await _context.Reviews.Where(review => review.ProductId == id).ToListAsync();
             _context.Reviews.RemoveRange(reviews);
 
-            // REQ-78: Audit log
+            // REQ-78 & REQ-79: Audit log with real Admin ID from JWT
+            var adminId = GetCurrentAdminId();
             _context.AuditLogs.Add(new AuditLog
             {
-                AdminId = 1, // Hardcoded for now until Auth is fully mapped
+                AdminId = adminId,
                 ActionType = "DELETE_PRODUCT",
                 TargetTable = "Products",
                 TargetId = product.Id.ToString(),
@@ -145,6 +177,20 @@ namespace Vendora.Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Extracts the authenticated admin's user ID from the JWT token (REQ-79).
+        /// </summary>
+        private int GetCurrentAdminId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                           ?? User.FindFirst("sub");
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int adminId))
+            {
+                return adminId;
+            }
+            return 1; // Fallback to seeded admin
         }
     }
 }

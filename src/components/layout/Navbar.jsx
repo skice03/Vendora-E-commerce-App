@@ -56,6 +56,11 @@ export default function Navbar() {
                                     ❤️
                                 </Link>
 
+                                {/* My Orders Icon */}
+                                <Link to="/orders" className="vendora-navbar__icon-btn" aria-label="My Orders" title="My Orders">
+                                    📋
+                                </Link>
+
                                 {/* Admin Links */}
                                 {isAdmin && (
                                     <>

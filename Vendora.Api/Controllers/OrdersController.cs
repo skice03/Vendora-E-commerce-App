@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Vendora.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -18,31 +19,148 @@ namespace Vendora.Api.Controllers
             _context = context;
         }
 
-        // REQ-70: Master grid of all orders
-        [HttpGet]
-        public async Task<IActionResult> GetOrders()
+        // ───────────────────────────────────────────────
+        //  Customer Endpoints
+        // ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Places a new order using a database transaction (REQ-23 to REQ-29).
+        /// Validates stock, decrements quantities, and creates order + items atomically.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrderAsync([FromBody] CreateOrderRequest request)
         {
-            var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.Items)
-                .ThenInclude(i => i.Product)
-                .OrderByDescending(o => o.CreatedAt)
-                .Select(o => new
+            // Validate request
+            if (string.IsNullOrWhiteSpace(request.ShippingAddress))
+            {
+                return BadRequest(new { message = "Shipping address is required." });
+            }
+
+            if (request.Items == null || request.Items.Count == 0)
+            {
+                return BadRequest(new { message = "Order must contain at least one item." });
+            }
+
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                return Unauthorized(new { message = "Authentication required." });
+            }
+
+            // REQ-24: Begin database transaction for ACID compliance
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var orderItems = new List<OrderItem>();
+                decimal totalAmount = 0;
+
+                foreach (var item in request.Items)
                 {
-                    o.Id,
-                    o.TotalAmount,
-                    o.Status,
-                    o.CreatedAt,
-                    o.ShippingAddress,
-                    CustomerName = o.User != null ? o.User.FirstName + " " + o.User.LastName : "Unknown",
-                    CustomerEmail = o.User != null ? o.User.Email : "Unknown",
-                    ItemsCount = o.Items.Count,
-                    Items = o.Items.Select(i => new
+                    // Load product with tracking to update stock
+                    var product = await _context.Products.FindAsync(item.ProductId);
+
+                    if (product == null || product.IsDeleted)
                     {
-                        i.ProductId,
-                        ProductName = i.Product != null ? i.Product.Name : "Unknown",
-                        i.Quantity,
-                        i.UnitPrice
+                        await transaction.RollbackAsync();
+                        return BadRequest(new { message = $"Product with ID {item.ProductId} is not available." });
+                    }
+
+                    // REQ-28: Check stock — rollback if insufficient
+                    if (product.StockQuantity < item.Quantity)
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new
+                        {
+                            message = $"Insufficient stock for \"{product.Name}\". Available: {product.StockQuantity}, Requested: {item.Quantity}."
+                        });
+                    }
+
+                    // REQ-27: Decrement stock
+                    product.StockQuantity -= item.Quantity;
+
+                    var orderItem = new OrderItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price
+                    };
+
+                    orderItems.Add(orderItem);
+                    totalAmount += product.Price * item.Quantity;
+                }
+
+                // REQ-25: Insert into Orders table
+                var order = new Order
+                {
+                    UserId = userId,
+                    TotalAmount = totalAmount,
+                    Status = "Pending",
+                    ShippingAddress = request.ShippingAddress,
+                    CreatedAt = DateTime.UtcNow,
+                    // REQ-26: Insert into OrderItems table
+                    Items = orderItems
+                };
+
+                await _context.Orders.AddAsync(order);
+                await _context.SaveChangesAsync();
+
+                // Commit transaction — all stock decrements + order creation succeed atomically
+                await transaction.CommitAsync();
+
+                // REQ-29: Frontend will call clearCart() on success
+                return StatusCode(201, new
+                {
+                    message = "Order placed successfully!",
+                    orderId = order.Id,
+                    totalAmount = order.TotalAmount,
+                    status = order.Status
+                });
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { message = "An error occurred while placing your order. Please try again." });
+            }
+        }
+
+        /// <summary>
+        /// Retrieves orders for the authenticated customer (REQ-30 to REQ-33).
+        /// Only returns orders belonging to the requesting user.
+        /// </summary>
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrdersAsync()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                return Unauthorized();
+            }
+
+            // REQ-30: Fetch orders by authenticated user's ID
+            // REQ-31: Sort by date (newest first)
+            // REQ-33: Authorization — only returns own orders
+            var orders = await _context.Orders
+                .Where(order => order.UserId == userId)
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Product)
+                .OrderByDescending(order => order.CreatedAt)
+                .Select(order => new
+                {
+                    order.Id,
+                    order.TotalAmount,
+                    // REQ-32: Display order status
+                    order.Status,
+                    order.CreatedAt,
+                    order.ShippingAddress,
+                    ItemsCount = order.Items.Count,
+                    Items = order.Items.Select(item => new
+                    {
+                        item.ProductId,
+                        ProductName = item.Product != null ? item.Product.Name : "Unknown",
+                        ProductImage = item.Product != null ? item.Product.ImageUrl : "",
+                        item.Quantity,
+                        item.UnitPrice
                     })
                 })
                 .ToListAsync();
@@ -50,44 +168,101 @@ namespace Vendora.Api.Controllers
             return Ok(orders);
         }
 
-        // REQ-71: Update the order status
+        // ───────────────────────────────────────────────
+        //  Admin Endpoints
+        // ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Retrieves a master grid of all orders (REQ-70).
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetOrdersAsync()
+        {
+            var orders = await _context.Orders
+                .Include(order => order.User)
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Product)
+                .OrderByDescending(order => order.CreatedAt)
+                .Select(order => new
+                {
+                    order.Id,
+                    order.TotalAmount,
+                    order.Status,
+                    order.CreatedAt,
+                    order.ShippingAddress,
+                    CustomerName = order.User != null ? order.User.FirstName + " " + order.User.LastName : "Unknown",
+                    CustomerEmail = order.User != null ? order.User.Email : "Unknown",
+                    ItemsCount = order.Items.Count,
+                    Items = order.Items.Select(item => new
+                    {
+                        item.ProductId,
+                        ProductName = item.Product != null ? item.Product.Name : "Unknown",
+                        item.Quantity,
+                        item.UnitPrice
+                    })
+                })
+                .ToListAsync();
+
+            return Ok(orders);
+        }
+
+        /// <summary>
+        /// Updates the order status (REQ-71).
+        /// Records a timestamp via audit log (REQ-72, REQ-78).
+        /// </summary>
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusRequest request)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusAsync(int id, [FromBody] UpdateOrderStatusRequest request)
         {
             var order = await _context.Orders.FindAsync(id);
-            if (order == null) return NotFound();
+            if (order == null)
+            {
+                return NotFound();
+            }
 
             order.Status = request.Status;
-            
-            // REQ-72 & REQ-78 (timestamp & audit)
+
+            // REQ-72 & REQ-78 & REQ-79: timestamp + audit with real Admin ID
+            var adminId = GetCurrentUserId();
             _context.AuditLogs.Add(new AuditLog
             {
-                AdminId = 1,
+                AdminId = adminId,
                 ActionType = "UPDATE_STATUS",
                 TargetTable = "Orders",
                 TargetId = order.Id.ToString(),
                 Details = $"Order status changed to {request.Status}."
             });
-            
+
             await _context.SaveChangesAsync();
             return Ok(new { Message = "Order status updated successfully", Status = order.Status });
         }
 
-        // REQ-73: Cancel an order and replenish stock
+        /// <summary>
+        /// Cancels an order and replenishes stock (REQ-73).
+        /// </summary>
         [HttpPost("{id}/cancel")]
-        public async Task<IActionResult> CancelOrder(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CancelOrderAsync(int id)
         {
             var order = await _context.Orders
-                .Include(o => o.Items)
-                .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(order => order.Id == id);
 
-            if (order == null) return NotFound();
-            if (order.Status == "Cancelled") return BadRequest("Order is already cancelled.");
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (order.Status == "Cancelled")
+            {
+                return BadRequest("Order is already cancelled.");
+            }
 
             order.Status = "Cancelled";
 
-            // Replenish stock
+            // Replenish stock (REQ-73)
             foreach (var item in order.Items)
             {
                 if (item.Product != null)
@@ -96,10 +271,11 @@ namespace Vendora.Api.Controllers
                 }
             }
 
-            // REQ-78: Audit log
+            // REQ-78 & REQ-79: Audit log with real Admin ID
+            var adminId = GetCurrentUserId();
             _context.AuditLogs.Add(new AuditLog
             {
-                AdminId = 1,
+                AdminId = adminId,
                 ActionType = "CANCEL_ORDER",
                 TargetTable = "Orders",
                 TargetId = order.Id.ToString(),
@@ -109,10 +285,23 @@ namespace Vendora.Api.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { Message = "Order cancelled and stock replenished", Status = order.Status });
         }
-    }
 
-    public class UpdateOrderStatusRequest
-    {
-        public string Status { get; set; } = string.Empty;
+        // ───────────────────────────────────────────────
+        //  Helpers
+        // ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Extracts the authenticated user's ID from the JWT token (REQ-79).
+        /// </summary>
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                           ?? User.FindFirst("sub");
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return userId;
+            }
+            return 0;
+        }
     }
 }

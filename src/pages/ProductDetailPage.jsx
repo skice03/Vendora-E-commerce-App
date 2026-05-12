@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { apiGet } from '../utils/api.js';
+import { apiGet, apiPost } from '../utils/api.js';
 import { useCart } from '../context/CartContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import StarRating from '../components/ui/StarRating.jsx';
@@ -12,6 +13,7 @@ export default function ProductDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { isAuthenticated } = useAuth();
     const { showSuccess, showError } = useToast();
 
     const [product, setProduct] = useState(null);
@@ -20,18 +22,36 @@ export default function ProductDetailPage() {
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
+    // Review form state
+    const [canReview, setCanReview] = useState(false);
+    const [reviewReason, setReviewReason] = useState('');
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
     useEffect(() => {
         const fetchProductData = async () => {
             try {
                 setIsLoading(true);
                 // Fetch product and reviews concurrently
-                const [productData, reviewsData] = await Promise.all([
+                const fetches = [
                     apiGet(`/products/${id}`),
                     apiGet(`/reviews/product/${id}`)
-                ]);
-                
-                setProduct(productData);
-                setReviews(reviewsData);
+                ];
+
+                // Check review eligibility if authenticated
+                if (isAuthenticated) {
+                    fetches.push(apiGet(`/reviews/can-review/${id}`));
+                }
+
+                const results = await Promise.all(fetches);
+                setProduct(results[0]);
+                setReviews(results[1]);
+
+                if (results[2]) {
+                    setCanReview(results[2].canReview);
+                    setReviewReason(results[2].reason || '');
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -39,7 +59,7 @@ export default function ProductDetailPage() {
             }
         };
         fetchProductData();
-    }, [id]);
+    }, [id, isAuthenticated]);
 
     if (isLoading) {
         return <div style={{ textAlign: 'center', padding: '4rem 0' }}>Loading product details...</div>;
@@ -71,6 +91,13 @@ export default function ProductDetailPage() {
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
 
     function handleAddToCart() {
+        // REQ-21: Redirect unauthenticated guests to login
+        if (!isAuthenticated) {
+            showError('Please log in to add items to your cart.');
+            navigate('/login');
+            return;
+        }
+
         try {
             addToCart(product, quantity);
             showSuccess(`${quantity}× "${product.name}" added to cart!`);
@@ -83,6 +110,33 @@ export default function ProductDetailPage() {
         if (isOutOfStock) return <span className="product-info__stock product-info__stock--out">● Out of Stock</span>;
         if (isLowStock) return <span className="product-info__stock product-info__stock--low">● Only {product.stockQuantity} left</span>;
         return <span className="product-info__stock product-info__stock--in">● In Stock</span>;
+    }
+
+    async function handleSubmitReview() {
+        setIsSubmittingReview(true);
+        try {
+            await apiPost('/reviews', {
+                productId: parseInt(id),
+                rating: reviewRating,
+                comment: reviewComment,
+            });
+
+            showSuccess('Review submitted successfully!');
+
+            // Refresh reviews list
+            const updatedReviews = await apiGet(`/reviews/product/${id}`);
+            setReviews(updatedReviews);
+
+            // Reset form and mark as already reviewed
+            setReviewComment('');
+            setReviewRating(5);
+            setCanReview(false);
+            setReviewReason('You have already reviewed this product.');
+        } catch (err) {
+            showError(err.message || 'Failed to submit review.');
+        } finally {
+            setIsSubmittingReview(false);
+        }
     }
 
     return (
@@ -191,6 +245,58 @@ export default function ProductDetailPage() {
                     </div>
                 ) : (
                     <p className="reviews-empty">No reviews yet. Be the first to review this product!</p>
+                )}
+
+                {/* ---- Write a Review (REQ-56, REQ-57, REQ-58) ---- */}
+                {isAuthenticated && (
+                    <div className="review-form-section">
+                        <h3 className="review-form-section__title">Write a Review</h3>
+
+                        {canReview ? (
+                            <div className="review-form">
+                                <div className="review-form__rating">
+                                    <label>Your Rating</label>
+                                    <div className="review-form__stars">
+                                        {[1, 2, 3, 4, 5].map(star => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                className={`review-form__star ${star <= reviewRating ? 'active' : ''}`}
+                                                onClick={() => setReviewRating(star)}
+                                                aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="review-form__comment">
+                                    <label htmlFor="reviewComment">Your Review (optional)</label>
+                                    <textarea
+                                        id="reviewComment"
+                                        value={reviewComment}
+                                        onChange={(e) => setReviewComment(e.target.value)}
+                                        placeholder="Share your experience with this product..."
+                                        rows={4}
+                                        maxLength={1000}
+                                    />
+                                </div>
+
+                                <Button
+                                    variant="primary"
+                                    onClick={handleSubmitReview}
+                                    disabled={isSubmittingReview}
+                                >
+                                    {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                                </Button>
+                            </div>
+                        ) : (
+                            <p className="review-form__ineligible">
+                                {reviewReason || 'You cannot review this product at this time.'}
+                            </p>
+                        )}
+                    </div>
                 )}
             </div>
         </div>

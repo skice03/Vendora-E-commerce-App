@@ -32,7 +32,12 @@ export function CartProvider({ children }) {
 
     /// Add a product to the cart, or increment quantity if it already exists.
     /// Validates against available stock (REQ-19).
+    /// Restricts cart operations to authenticated users (REQ-20, REQ-21).
     function addToCart(product, quantity = 1) {
+        if (!isAuthenticated) {
+            throw new Error('Please log in to add items to your cart.');
+        }
+
         setCartItems(currentItems => {
             const existingIndex = currentItems.findIndex(item => item.productId === product.id);
 
@@ -64,7 +69,7 @@ export function CartProvider({ children }) {
                     productId: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.images?.[0] || '',
+                    image: product.imageUrl || product.images?.[0] || '',
                     quantity: quantity,
                     stockQuantity: product.stockQuantity,
                 },
