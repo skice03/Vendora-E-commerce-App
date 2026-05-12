@@ -5,7 +5,7 @@ import Button from '../ui/Button.jsx';
 import './Navbar.css';
 
 export default function Navbar() {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated, isAdmin, logout } = useAuth();
     const { cartCount } = useCart();
     const navigate = useNavigate();
 
@@ -55,6 +55,24 @@ export default function Navbar() {
                                 <Link to="/wishlist" className="vendora-navbar__icon-btn" aria-label="Wishlist">
                                     ❤️
                                 </Link>
+
+                                {/* Admin Links */}
+                                {isAdmin && (
+                                    <>
+                                        <Link to="/admin" className="vendora-navbar__icon-btn" aria-label="Admin Dashboard" title="Dashboard" style={{ color: 'var(--primary-color)' }}>
+                                            📊
+                                        </Link>
+                                        <Link to="/admin/products" className="vendora-navbar__icon-btn" aria-label="Admin Products" title="Products" style={{ color: 'var(--primary-color)' }}>
+                                            📦
+                                        </Link>
+                                        <Link to="/admin/orders" className="vendora-navbar__icon-btn" aria-label="Admin Orders" title="Orders" style={{ color: 'var(--primary-color)' }}>
+                                            📝
+                                        </Link>
+                                        <Link to="/admin/reviews" className="vendora-navbar__icon-btn" aria-label="Admin Reviews" title="Reviews" style={{ color: 'var(--primary-color)' }}>
+                                            ⭐
+                                        </Link>
+                                    </>
+                                )}
 
                                 {/* Profile Link */}
                                 <Link to="/profile" className="vendora-navbar__icon-btn" aria-label="Profile">

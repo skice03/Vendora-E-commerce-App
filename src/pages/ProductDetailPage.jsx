@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { mockProducts, mockReviews } from '../data/mockData.js';
+import { apiGet } from '../utils/api.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
@@ -14,11 +14,38 @@ export default function ProductDetailPage() {
     const { addToCart } = useCart();
     const { showSuccess, showError } = useToast();
 
-    const product = mockProducts.find(product => product.id === Number(id));
-    const [activeImage, setActiveImage] = useState(0);
+    const [product, setProduct] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
-    if (!product) {
+    useEffect(() => {
+        const fetchProductData = async () => {
+            try {
+                setIsLoading(true);
+                // Fetch product and reviews concurrently
+                const [productData, reviewsData] = await Promise.all([
+                    apiGet(`/products/${id}`),
+                    apiGet(`/reviews/product/${id}`)
+                ]);
+                
+                setProduct(productData);
+                setReviews(reviewsData);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProductData();
+    }, [id]);
+
+    if (isLoading) {
+        return <div style={{ textAlign: 'center', padding: '4rem 0' }}>Loading product details...</div>;
+    }
+
+    if (error || !product) {
         return (
             <div className="product-not-found container">
                 <div style={{ fontSize: '4rem', marginBottom: 'var(--space-4)' }}>🔍</div>
@@ -35,8 +62,10 @@ export default function ProductDetailPage() {
         );
     }
 
-    const productReviews = mockReviews.filter(review => review.productId === product.id);
-    
+    // Calculate average rating
+    const averageRating = reviews.length > 0 
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+        : 5; // Default to 5 if no reviews
     // Restricts checkout when stock is 0 (REQ-14, REQ-19)
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
@@ -76,11 +105,10 @@ export default function ProductDetailPage() {
                 {/* Gallery */}
                 <div className="product-gallery">
                     <div className="product-gallery__main">
-                        {product.images?.[activeImage] ? (
+                        {product.imageUrl ? (
                             <img
-                                src={product.images[activeImage]}
+                                src={product.imageUrl}
                                 alt={product.name}
-                                key={activeImage}
                             />
                         ) : (
                             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>
@@ -88,22 +116,6 @@ export default function ProductDetailPage() {
                             </div>
                         )}
                     </div>
-
-                    {product.images?.length > 1 && (
-                        <div className="product-gallery__thumbnails">
-                            {product.images.map((img, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`product-gallery__thumb ${idx === activeImage ? 'product-gallery__thumb--active' : ''}`}
-                                    onClick={() => setActiveImage(idx)}
-                                    role="button"
-                                    aria-label={`View image ${idx + 1}`}
-                                >
-                                    <img src={img} alt={`${product.name} view ${idx + 1}`} />
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
                 {/* Info Panel */}
@@ -112,7 +124,7 @@ export default function ProductDetailPage() {
                     <h1 className="product-info__title">{product.name}</h1>
 
                     <div className="product-info__meta">
-                        <StarRating rating={product.averageRating} showCount size="md" totalReviews={productReviews.length} />
+                        <StarRating rating={averageRating} showCount size="md" totalReviews={reviews.length} />
                         {getStockBadge()}
                     </div>
 
@@ -158,13 +170,13 @@ export default function ProductDetailPage() {
 
             <div className="reviews-section">
                 <h2 className="reviews-section__title">
-                    Customer Reviews ({productReviews.length})
+                    Customer Reviews ({reviews.length})
                 </h2>
 
                 {/* Renders list of reviews for the product (REQ-56, REQ-57) */}
-                {productReviews.length > 0 ? (
+                {reviews.length > 0 ? (
                     <div className="review-list">
-                        {productReviews.map(review => (
+                        {reviews.map(review => (
                             <div key={review.id} className="review-card">
                                 <div className="review-card__header">
                                     <div>
