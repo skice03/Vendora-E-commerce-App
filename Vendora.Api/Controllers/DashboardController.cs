@@ -21,7 +21,7 @@ namespace Vendora.Api.Controllers
         // REQ-76: Count of new orders placed on the current day
         // REQ-77: "Top 5 Customers" aggregating total spend
         [HttpGet("stats")]
-        public async Task<IActionResult> GetDashboardStats()
+        public async Task<IActionResult> GetDashboardStatsAsync()
         {
             // REQ-75: Total Revenue (SUM of all Delivered/Shipped orders to be safe, or just all non-cancelled)
             var totalRevenue = await _context.Orders
@@ -63,7 +63,7 @@ namespace Vendora.Api.Controllers
         }
 
         [HttpGet("audit-logs")]
-        public async Task<IActionResult> GetAuditLogs()
+        public async Task<IActionResult> GetAuditLogsAsync()
         {
             var logs = await _context.AuditLogs
                 .Include(a => a.Admin)

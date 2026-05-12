@@ -16,6 +16,8 @@ import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
+import CheckoutPage from './pages/CheckoutPage.jsx';
+import MyOrdersPage from './pages/MyOrdersPage.jsx';
 
 // Admin
 import AdminRoute from './components/layout/AdminRoute.jsx';
@@ -24,7 +26,7 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx';
 import AdminDashboardOverview from './pages/admin/AdminDashboardOverview.jsx';
 
-// Dummy Pages for Phase 1 routing validation
+// Dummy Pages for features not yet implemented
 const DummyPage = ({ title }) => (
   <div className="container" style={{ padding: '40px 20px', textAlign: 'center' }}>
     <h1 className="text-dark">{title}</h1>
@@ -50,10 +52,10 @@ export default function App() {
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<DummyPage title="Checkout" />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<MyOrdersPage />} />
                 
-                {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
-                <Route path="/orders" element={<DummyPage title="My Orders" />} />
+                {/* Remaining Dummy Pages for future phases */}
                 <Route path="/profile" element={<DummyPage title="My Profile" />} />
                 <Route path="/wishlist" element={<DummyPage title="My Wishlist" />} />
               </Route>

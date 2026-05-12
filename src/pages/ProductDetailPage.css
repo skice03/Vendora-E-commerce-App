@@ -293,6 +293,92 @@
     font-size: var(--font-size-base);
 }
 
+/* ---- Write a Review Form ---- */
+.review-form-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.review-form-section__title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-900);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.review-form {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.review-form__rating label,
+.review-form__comment label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-gray-700);
+    margin-bottom: var(--space-2);
+}
+
+.review-form__stars {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.review-form__star {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-gray-300);
+    transition: color 0.15s, transform 0.1s;
+    padding: 0;
+    line-height: 1;
+}
+
+.review-form__star:hover {
+    transform: scale(1.15);
+}
+
+.review-form__star.active {
+    color: hsl(45, 100%, 50%);
+}
+
+.review-form__comment textarea {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+}
+
+.review-form__comment textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px hsla(var(--primary-hsl), 0.15);
+}
+
+.review-form__ineligible {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    background: var(--color-gray-50);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-gray-200);
+    text-align: center;
+}
+
 /* ---- Not Found ---- */
 .product-not-found {
     text-align: center;

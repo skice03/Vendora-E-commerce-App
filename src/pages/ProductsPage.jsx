@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { mockCategories } from '../data/mockData.js';
 import { apiGet } from '../utils/api.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import './ProductsPage.css';
@@ -25,39 +24,54 @@ export default function ProductsPage() {
 
     const initialCategory = Number(searchParams.get('category')) || 0;
     const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+    const [searchQuery, setSearchQuery] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('rating_desc');
 
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
                 setIsLoading(true);
-                // Fetch only active products
-                const data = await apiGet('/products');
-                setProducts(data);
+                // Fetch products and categories concurrently from DB
+                const [productsData, categoriesData] = await Promise.all([
+                    apiGet('/products'),
+                    apiGet('/categories')
+                ]);
+                setProducts(productsData);
+                setCategories(categoriesData);
             } catch (err) {
                 setError('Failed to load products: ' + err.message);
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchProducts();
+        fetchData();
     }, []);
 
-    const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
+    const topCategories = categories.filter(category => category.parentCategoryId === null);
 
-    // Filters products based on search criteria (REQ-16)
+    // Filters products based on search criteria (REQ-15, REQ-16, REQ-17)
     const filteredProducts = useMemo(() => {
         let result = products;
 
+        // REQ-15: Keyword search on names and descriptions (case-insensitive)
+        if (searchQuery.trim() !== '') {
+            const lowerQuery = searchQuery.toLowerCase();
+            result = result.filter(product =>
+                product.name.toLowerCase().includes(lowerQuery) ||
+                (product.description && product.description.toLowerCase().includes(lowerQuery))
+            );
+        }
+
         if (selectedCategory !== 0) {
-            const childIds = mockCategories
+            const childIds = categories
                 .filter(category => category.parentCategoryId === selectedCategory)
                 .map(category => category.id);
             const validIds = [selectedCategory, ...childIds];
@@ -80,17 +94,18 @@ export default function ProductsPage() {
         }
 
         return result;
-    }, [products, selectedCategory, minPrice, maxPrice, minRating, sortBy]);
+    }, [products, searchQuery, selectedCategory, minPrice, maxPrice, minRating, sortBy]);
 
     function handleClearFilters() {
         setSelectedCategory(0);
+        setSearchQuery('');
         setMinPrice('');
         setMaxPrice('');
         setMinRating(0);
         setSortBy('rating_desc');
     }
 
-    const hasActiveFilters = selectedCategory !== 0 || minPrice !== '' || maxPrice !== '' || minRating > 0;
+    const hasActiveFilters = selectedCategory !== 0 || searchQuery !== '' || minPrice !== '' || maxPrice !== '' || minRating > 0;
 
     return (
         <div className="products-page">
@@ -104,6 +119,26 @@ export default function ProductsPage() {
                         </button>
                     )}
                 </h2>
+
+                {/* REQ-15: Keyword search */}
+                <div className="filter-group">
+                    <span className="filter-group__label">Search</span>
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        aria-label="Search products by name or description"
+                        style={{
+                            width: '100%',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: 'var(--border-radius)',
+                            border: '1px solid var(--color-gray-300)',
+                            fontSize: 'var(--font-size-sm)',
+                            fontFamily: 'var(--font-family)'
+                        }}
+                    />
+                </div>
 
                 {/* Category Filter */}
                 <div className="filter-group">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { mockCategories } from '../data/mockData.js';
 import { apiGet } from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ProductCard from '../components/ui/ProductCard.jsx';
@@ -27,26 +26,28 @@ export default function HomePage() {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
 
-    // Top-level categories only (no sub-categories in the hero section)
-    const topCategories = mockCategories.filter(category => category.parentCategoryId === null);
-
+    const [topCategories, setTopCategories] = useState([]);
     const [featuredProducts, setFeaturedProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
-                const data = await apiGet('/products');
+                const [productsData, categoriesData] = await Promise.all([
+                    apiGet('/products'),
+                    apiGet('/categories')
+                ]);
                 // Sort by rating descending, take top 4 for featured grid
-                const top = data.sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5)).slice(0, 4);
+                const top = productsData.sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5)).slice(0, 4);
                 setFeaturedProducts(top);
+                setTopCategories(categoriesData.filter(category => category.parentCategoryId === null));
             } catch (err) {
-                console.error("Failed to load featured products", err);
+                console.error("Failed to load home page data", err);
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchProducts();
+        fetchData();
     }, []);
 
     return (
