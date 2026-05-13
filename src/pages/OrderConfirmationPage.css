@@ -73,6 +73,46 @@
     letter-spacing: 1px;
 }
 
+.confirmation-amount {
+    background: var(--color-gray-50);
+    border: 1px dashed var(--color-gray-300);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.confirmation-amount span {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin-bottom: var(--space-1);
+}
+
+.confirmation-amount strong {
+    font-size: var(--font-size-lg);
+    color: var(--color-gray-900);
+}
+
+.confirmation-badge {
+    margin-bottom: var(--space-6);
+}
+
+.badge-success {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.confirmation-icon--error {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
 .confirmation-actions {
     display: flex;
     flex-direction: column;

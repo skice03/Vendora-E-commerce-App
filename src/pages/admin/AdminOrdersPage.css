@@ -46,6 +46,12 @@
 .badge-shipped { background-color: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
 .badge-delivered { background-color: #d1e7dd; color: #0f5132; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
 .badge-cancelled { background-color: #f8d7da; color: #721c24; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+.badge-awaitingpayment { background-color: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+
+/* Payment status badges */
+.badge-payment-paid { background-color: #d1e7dd; color: #0f5132; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.badge-payment-unpaid { background-color: #f8d7da; color: #721c24; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.badge-payment-refunded { background-color: #cce5ff; color: #004085; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
 
 /* ---- Order Details Modal ---- */
 .modal-overlay {

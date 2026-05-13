@@ -8,8 +8,13 @@ export default function AdminRoute() {
         return <div style={{ textAlign: 'center', padding: 'var(--space-12)' }}>Loading...</div>;
     }
 
-    if (!isAuthenticated || !isAdmin) {
-        // Redirect unauthorized users to home page (REQ-34 Frontend Enforcement)
+    // Not logged in → send to login page
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Logged in but not admin → send to home page
+    if (!isAdmin) {
         return <Navigate to="/" replace />;
     }
 

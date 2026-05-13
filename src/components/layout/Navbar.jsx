@@ -26,9 +26,8 @@ export default function Navbar() {
                 {/* Desktop Navigation */}
                 <nav className="vendora-navbar__nav">
                     <NavLink to="/products" className="vendora-navbar__link">
-                        Catalog
+                        📦 Catalog
                     </NavLink>
-                    {/* Add more links here if needed */}
                 </nav>
 
                 {/* Actions & User Menu */}
@@ -42,6 +41,7 @@ export default function Navbar() {
                                 {cartCount > 99 ? '99+' : cartCount}
                             </span>
                         )}
+                        <span className="vendora-navbar__icon-label">Cart</span>
                     </Link>
 
                     <div className="vendora-navbar__user">
@@ -54,27 +54,34 @@ export default function Navbar() {
                                 {/* Wishlist Icon */}
                                 <Link to="/wishlist" className="vendora-navbar__icon-btn" aria-label="Wishlist">
                                     ❤️
+                                    <span className="vendora-navbar__icon-label">Wishlist</span>
                                 </Link>
 
                                 {/* My Orders Icon */}
-                                <Link to="/orders" className="vendora-navbar__icon-btn" aria-label="My Orders" title="My Orders">
+                                <Link to="/orders" className="vendora-navbar__icon-btn" aria-label="My Orders">
                                     📋
+                                    <span className="vendora-navbar__icon-label">Orders</span>
                                 </Link>
 
                                 {/* Admin Links */}
                                 {isAdmin && (
                                     <>
-                                        <Link to="/admin" className="vendora-navbar__icon-btn" aria-label="Admin Dashboard" title="Dashboard" style={{ color: 'var(--primary-color)' }}>
+                                        <div className="vendora-navbar__divider" />
+                                        <Link to="/admin" className="vendora-navbar__icon-btn vendora-navbar__admin-link" aria-label="Admin Dashboard">
                                             📊
+                                            <span className="vendora-navbar__icon-label">Dashboard</span>
                                         </Link>
-                                        <Link to="/admin/products" className="vendora-navbar__icon-btn" aria-label="Admin Products" title="Products" style={{ color: 'var(--primary-color)' }}>
+                                        <Link to="/admin/products" className="vendora-navbar__icon-btn vendora-navbar__admin-link" aria-label="Admin Products">
                                             📦
+                                            <span className="vendora-navbar__icon-label">Products</span>
                                         </Link>
-                                        <Link to="/admin/orders" className="vendora-navbar__icon-btn" aria-label="Admin Orders" title="Orders" style={{ color: 'var(--primary-color)' }}>
+                                        <Link to="/admin/orders" className="vendora-navbar__icon-btn vendora-navbar__admin-link" aria-label="Admin Orders">
                                             📝
+                                            <span className="vendora-navbar__icon-label">Manage</span>
                                         </Link>
-                                        <Link to="/admin/reviews" className="vendora-navbar__icon-btn" aria-label="Admin Reviews" title="Reviews" style={{ color: 'var(--primary-color)' }}>
+                                        <Link to="/admin/reviews" className="vendora-navbar__icon-btn vendora-navbar__admin-link" aria-label="Admin Reviews">
                                             ⭐
+                                            <span className="vendora-navbar__icon-label">Reviews</span>
                                         </Link>
                                     </>
                                 )}
@@ -82,6 +89,7 @@ export default function Navbar() {
                                 {/* Profile Link */}
                                 <Link to="/profile" className="vendora-navbar__icon-btn" aria-label="Profile">
                                     👤
+                                    <span className="vendora-navbar__icon-label">Profile</span>
                                 </Link>
 
                                 <Button variant="outline" size="sm" onClick={handleLogout}>

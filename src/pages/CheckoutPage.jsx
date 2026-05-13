@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -11,9 +11,10 @@ import './CheckoutPage.css';
 
 export default function CheckoutPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { cartItems, subtotal, shippingCost, cartTotal, clearCart } = useCart();
     const { isAuthenticated } = useAuth();
-    const { showSuccess, showError } = useToast();
+    const { showSuccess, showError, showWarning } = useToast();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [savedAddresses, setSavedAddresses] = useState([]);
@@ -27,6 +28,13 @@ export default function CheckoutPage() {
         zipCode: '',
         country: '',
     });
+
+    // Check if returning from cancelled Stripe checkout
+    useEffect(() => {
+        if (searchParams.get('cancelled') === 'true') {
+            showWarning('Payment was cancelled. You can try again when ready.');
+        }
+    }, [searchParams]);
 
     // Fetch saved addresses on mount
     useEffect(() => {
@@ -131,7 +139,7 @@ export default function CheckoutPage() {
         );
     }
 
-    async function handlePlaceOrder() {
+    async function handleStripeCheckout() {
         if (!isFormValid()) {
             showError('Please fill in all required shipping fields.');
             return;
@@ -140,7 +148,7 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
 
         try {
-            const orderPayload = {
+            const payload = {
                 shippingAddress: buildShippingAddress(),
                 items: cartItems.map(item => ({
                     productId: item.productId,
@@ -148,14 +156,19 @@ export default function CheckoutPage() {
                 })),
             };
 
-            const response = await apiPost('/orders', orderPayload);
-            
-            // Clear cart and redirect to success page
-            clearCart();
-            showSuccess('Order placed successfully!');
-            navigate('/checkout/success', { state: { orderId: response.orderId } });
+            const response = await apiPost('/payment/create-checkout-session', payload);
+
+            if (response.sessionUrl) {
+                // Clear cart before redirecting to Stripe
+                clearCart();
+                // Redirect to Stripe Checkout hosted page
+                window.location.href = response.sessionUrl;
+            } else {
+                showError('Failed to create payment session. Please try again.');
+                setIsSubmitting(false);
+            }
         } catch (err) {
-            showError(err.message || 'Failed to place order. Please try again.');
+            showError(err.message || 'Failed to initiate payment. Please try again.');
             setIsSubmitting(false);
         }
     }
@@ -330,19 +343,33 @@ export default function CheckoutPage() {
                         </div>
                     </div>
 
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={handlePlaceOrder}
+                    <button
+                        className="stripe-checkout-btn"
+                        onClick={handleStripeCheckout}
                         disabled={isSubmitting || !isFormValid()}
-                        style={{ width: '100%', marginTop: 'var(--space-4)' }}
                     >
-                        {isSubmitting ? 'Placing Order...' : `Place Order — ${formatCurrency(cartTotal)}`}
-                    </Button>
+                        {isSubmitting ? (
+                            <span className="stripe-checkout-btn__loading">Processing...</span>
+                        ) : (
+                            <>
+                                <svg className="stripe-checkout-btn__lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                Pay {formatCurrency(cartTotal)} with Stripe
+                            </>
+                        )}
+                    </button>
 
-                    <p className="checkout-secure-note">
-                        🔒 Your information is secure. Payment processing will be available soon.
-                    </p>
+                    <div className="checkout-secure-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{verticalAlign: 'middle', marginRight: '4px'}}>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        Secure payment powered by <strong>Stripe</strong>. Your card details are never stored on our servers.
+                    </div>
+
+                    <div className="stripe-test-info">
+                        <strong>Test Mode</strong> — Use card <code>4242 4242 4242 4242</code> with any future expiry and CVC.
+                    </div>
                 </aside>
             </div>
         </div>

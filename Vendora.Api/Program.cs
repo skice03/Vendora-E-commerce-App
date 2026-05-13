@@ -52,6 +52,9 @@ builder.Services.AddAuthentication(options =>
 // OpenAPI documentation
 builder.Services.AddOpenApi();
 
+// Configure Stripe
+Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 var app = builder.Build();
 
 // http pipeline

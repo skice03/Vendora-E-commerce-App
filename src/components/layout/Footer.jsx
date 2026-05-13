@@ -19,14 +19,13 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    {/* Quick Links */}
                     <div>
                         <h4 className="vendora-footer__title">Shop</h4>
                         <ul className="vendora-footer__list">
                             <li><Link to="/products" className="vendora-footer__link">All Products</Link></li>
-                            <li><Link to="/products?category=electronics" className="vendora-footer__link">Electronics</Link></li>
-                            <li><Link to="/products?category=clothing" className="vendora-footer__link">Clothing</Link></li>
-                            <li><Link to="/products?category=home" className="vendora-footer__link">Home & Kitchen</Link></li>
+                            <li><Link to="/products?category=1" className="vendora-footer__link">Electronics</Link></li>
+                            <li><Link to="/products?category=5" className="vendora-footer__link">Clothing</Link></li>
+                            <li><Link to="/products?category=8" className="vendora-footer__link">Home & Kitchen</Link></li>
                         </ul>
                     </div>
 

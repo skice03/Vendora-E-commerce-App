@@ -73,13 +73,14 @@ export default function AdminOrdersPage() {
                             <th>Date</th>
                             <th>Customer</th>
                             <th>Total</th>
+                            <th>Payment</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {orders.length === 0 ? (
-                            <tr><td colSpan="6" style={{textAlign: 'center'}}>No orders found.</td></tr>
+                            <tr><td colSpan="7" style={{textAlign: 'center'}}>No orders found.</td></tr>
                         ) : (
                             orders.map(order => (
                                 <tr key={order.id}>
@@ -91,12 +92,18 @@ export default function AdminOrdersPage() {
                                     </td>
                                     <td style={{ fontWeight: 'bold' }}>{formatCurrency(order.totalAmount)}</td>
                                     <td>
+                                        <span className={`badge badge-payment-${(order.paymentStatus || 'unpaid').toLowerCase()}`}>
+                                            {order.paymentStatus || 'Unpaid'}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <select 
                                             value={order.status} 
                                             onChange={(e) => handleStatusChange(order.id, e.target.value)}
                                             disabled={order.status === 'Cancelled'}
                                             className={`status-select status-${order.status.toLowerCase()}`}
                                         >
+                                            <option value="AwaitingPayment">Awaiting Payment</option>
                                             <option value="Pending">Pending</option>
                                             <option value="Processing">Processing</option>
                                             <option value="Shipped">Shipped</option>
@@ -111,7 +118,9 @@ export default function AdminOrdersPage() {
                                                 onClick={() => setSelectedOrder(order)}
                                                 title="View Details"
                                             >
-                                                👁️
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                                </svg>
                                             </button>
                                             {order.status !== 'Cancelled' && (
                                                 <button 
