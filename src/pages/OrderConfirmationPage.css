@@ -1,0 +1,100 @@
+/* ========================================
+   Vendora — OrderConfirmationPage CSS
+   ======================================== */
+
+.confirmation-page {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: var(--space-16) var(--space-6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirmation-card {
+    background: var(--bg-card);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-10) var(--space-8);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    animation: slideUpFade 0.5s ease-out;
+}
+
+.confirmation-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto var(--space-6) auto;
+    animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+}
+
+.confirmation-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-gray-900);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.confirmation-subtitle {
+    font-size: var(--font-size-base);
+    color: var(--color-gray-500);
+    margin: 0 0 var(--space-6) 0;
+}
+
+.confirmation-order-id {
+    background: var(--color-gray-50);
+    border: 1px dashed var(--color-gray-300);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.confirmation-order-id span {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin-bottom: var(--space-1);
+    font-weight: var(--font-weight-medium);
+}
+
+.confirmation-order-id strong {
+    font-family: monospace;
+    font-size: var(--font-size-xl);
+    color: var(--color-primary-dark);
+    letter-spacing: 1px;
+}
+
+.confirmation-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}

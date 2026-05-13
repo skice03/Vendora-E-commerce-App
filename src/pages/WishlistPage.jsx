@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { useWishlist } from '../context/WishlistContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { apiGet, apiDelete } from '../utils/api.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import Button from '../components/ui/Button.jsx';
 import './WishlistPage.css';
@@ -11,42 +11,11 @@ import './WishlistPage.css';
 export default function WishlistPage() {
     const { user } = useAuth();
     const { addToCart } = useCart();
-    const { showSuccess, showError } = useToast();
-
-    const [wishlistItems, setWishlistItems] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        if (user) {
-            fetchWishlist();
-        }
-    }, [user]);
-
-    async function fetchWishlist() {
-        try {
-            setIsLoading(true);
-            const data = await apiGet('/wishlist');
-            setWishlistItems(data);
-        } catch (err) {
-            showError('Failed to load wishlist.');
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    async function handleRemove(productId) {
-        try {
-            await apiDelete(`/wishlist/${productId}`);
-            showSuccess('Removed from wishlist.');
-            setWishlistItems(prev => prev.filter(item => item.productId !== productId));
-        } catch (err) {
-            showError('Failed to remove item.');
-        }
-    }
+    const { wishlistItems, isLoading, removeFromWishlist } = useWishlist();
 
     async function handleMoveToCart(item) {
         addToCart(item.product, 1);
-        await handleRemove(item.productId);
+        await removeFromWishlist(item.productId);
     }
 
     if (!user) return <div className="container">Please log in to view your wishlist.</div>;
@@ -90,7 +59,7 @@ export default function WishlistPage() {
                                 <Button 
                                     variant="outline" 
                                     fullWidth 
-                                    onClick={() => handleRemove(item.productId)}
+                                    onClick={() => removeFromWishlist(item.productId)}
                                 >
                                     Remove
                                 </Button>

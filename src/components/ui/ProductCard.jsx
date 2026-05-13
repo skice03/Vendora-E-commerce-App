@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
+import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { formatCurrency } from '../../utils/formatters.js';
 import StarRating from './StarRating.jsx';
@@ -8,9 +9,12 @@ import './ProductCard.css';
 export default function ProductCard({ product }) {
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
     const { showSuccess, showError } = useToast();
 
     if (!product) return null;
+
+    const isLiked = isInWishlist(product.id);
 
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
@@ -37,6 +41,16 @@ export default function ProductCard({ product }) {
         <div className="product-card" onClick={handleCardClick} role="article">
             {/* Image */}
             <div className="product-card__image-wrapper">
+                <button 
+                    className={`product-card__wishlist-btn ${isLiked ? 'liked' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(product);
+                    }}
+                    aria-label="Toggle wishlist"
+                >
+                    {isLiked ? '❤️' : '🤍'}
+                </button>
                 {mainImage ? (
                     <img
                         src={mainImage}
