@@ -144,8 +144,29 @@
     border-radius: var(--radius-full);
 }
 
+.address-card__actions {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-gray-100);
+}
+
+.address-card__edit {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    padding: 0;
+}
+
+.address-card__edit:hover {
+    text-decoration: underline;
+}
+
 .address-card__delete {
-    margin-top: var(--space-2);
     background: none;
     border: none;
     color: var(--color-danger);
@@ -157,6 +178,19 @@
 
 .address-card__delete:hover {
     text-decoration: underline;
+}
+
+.address-form__title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-800);
+    margin: 0;
+}
+
+.profile-section__hint {
+    color: var(--color-gray-500);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
 }
 
 @media (max-width: 768px) {

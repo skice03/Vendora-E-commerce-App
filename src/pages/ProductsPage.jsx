@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { apiGet } from '../utils/api.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
@@ -29,6 +29,8 @@ export default function ProductsPage() {
     const [maxPrice, setMaxPrice] = useState('');
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('rating_desc');
+    const [currentPage, setCurrentPage] = useState(1);
+    const PRODUCTS_PER_PAGE = 12;
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -96,6 +98,18 @@ export default function ProductsPage() {
         return result;
     }, [products, searchQuery, selectedCategory, minPrice, maxPrice, minRating, sortBy]);
 
+    // Reset to page 1 when any filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, selectedCategory, minPrice, maxPrice, minRating, sortBy]);
+
+    // Pagination calculations
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+    const paginatedProducts = useMemo(() => {
+        const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+        return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+    }, [filteredProducts, currentPage]);
+
     function handleClearFilters() {
         setSelectedCategory(0);
         setSearchQuery('');
@@ -103,6 +117,7 @@ export default function ProductsPage() {
         setMaxPrice('');
         setMinRating(0);
         setSortBy('rating_desc');
+        setCurrentPage(1);
     }
 
     const hasActiveFilters = selectedCategory !== 0 || searchQuery !== '' || minPrice !== '' || maxPrice !== '' || minRating > 0;
@@ -214,8 +229,11 @@ export default function ProductsPage() {
                 {/* Toolbar */}
                 <div className="products-toolbar">
                     <p className="products-toolbar__count">
-                        Showing <strong>{filteredProducts.length}</strong> of{' '}
-                        <strong>{products.length}</strong> products
+                        Showing <strong>{paginatedProducts.length}</strong> of{' '}
+                        <strong>{filteredProducts.length}</strong> products
+                        {filteredProducts.length !== products.length && (
+                            <span> (filtered from {products.length})</span>
+                        )}
                     </p>
                     <select
                         className="sort-select"
@@ -234,12 +252,45 @@ export default function ProductsPage() {
                     <div style={{ textAlign: 'center', padding: '4rem 0' }}>Loading products...</div>
                 ) : error ? (
                     <div className="alert alert-danger">{error}</div>
-                ) : filteredProducts.length > 0 ? (
+                ) : paginatedProducts.length > 0 ? (
+                    <>
                     <div className="product-grid">
-                        {filteredProducts.map(product => (
+                        {paginatedProducts.map(product => (
                             <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="pagination">
+                            <button
+                                className="pagination__btn"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                            >
+                                ← Previous
+                            </button>
+                            <div className="pagination__pages">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        className={`pagination__page ${page === currentPage ? 'pagination__page--active' : ''}`}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                className="pagination__btn"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                            >
+                                Next →
+                            </button>
+                        </div>
+                    )}
+                    </>
                 ) : (
                     <div className="products-empty">
                         <div className="products-empty__icon">🔍</div>
