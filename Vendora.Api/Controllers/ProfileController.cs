@@ -34,7 +34,8 @@ namespace Vendora.Api.Controllers
                 user.FirstName,
                 user.LastName,
                 user.Email,
-                user.Role
+                user.Role,
+                user.CreatedAt
             });
         }
 

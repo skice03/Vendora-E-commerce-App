@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatCurrency, formatDate } from '../utils/formatters.js';
 import StarRating from '../components/ui/StarRating.jsx';
+import ProductCard from '../components/ui/ProductCard.jsx';
 import Button from '../components/ui/Button.jsx';
 import './ProductDetailPage.css';
 
@@ -18,6 +19,7 @@ export default function ProductDetailPage() {
 
     const [product, setProduct] = useState(null);
     const [reviews, setReviews] = useState([]);
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
@@ -52,6 +54,22 @@ export default function ProductDetailPage() {
                     setCanReview(results[2].canReview);
                     setReviewReason(results[2].reason || '');
                 }
+
+                // REQ-55: Increment view count (fire-and-forget)
+                apiPost(`/products/${id}/view`).catch(() => {});
+
+                // REQ-53: Fetch related products (same category)
+                if (results[0] && results[0].categoryId) {
+                    try {
+                        const allProducts = await apiGet('/products');
+                        const related = allProducts
+                            .filter(product => product.categoryId === results[0].categoryId && product.id !== results[0].id)
+                            .slice(0, 4);
+                        setRelatedProducts(related);
+                    } catch (relatedErr) {
+                        // Non-critical — silently fail
+                    }
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -82,10 +100,10 @@ export default function ProductDetailPage() {
         );
     }
 
-    // Calculate average rating
+    // Calculate average rating from reviews (or use backend value)
     const averageRating = reviews.length > 0 
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
-        : 5; // Default to 5 if no reviews
+        : 0;
     // Restricts checkout when stock is 0 (REQ-14, REQ-19)
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
@@ -181,6 +199,10 @@ export default function ProductDetailPage() {
                         <StarRating rating={averageRating} showCount size="md" totalReviews={reviews.length} />
                         {getStockBadge()}
                     </div>
+
+                    {product.viewCount > 0 && (
+                        <p className="product-info__views">👁 {product.viewCount} views</p>
+                    )}
 
                     <p className="product-info__sku">SKU: {product.sku}</p>
 
@@ -299,6 +321,20 @@ export default function ProductDetailPage() {
                     </div>
                 )}
             </div>
+
+            {/* REQ-53: Related Products section */}
+            {relatedProducts.length > 0 && (
+                <div className="related-products-section">
+                    <h2 className="related-products-section__title">
+                        Related Products
+                    </h2>
+                    <div className="product-grid">
+                        {relatedProducts.map(relatedProduct => (
+                            <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

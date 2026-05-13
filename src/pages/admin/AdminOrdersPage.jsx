@@ -146,6 +146,16 @@ export default function AdminOrdersPage() {
                                     <p><strong>Name:</strong> {selectedOrder.customerName}</p>
                                     <p><strong>Email:</strong> {selectedOrder.customerEmail}</p>
                                     <p><strong>Shipping Address:</strong> {selectedOrder.shippingAddress}</p>
+                                    {/* REQ-74: Customer profile accessible from order details */}
+                                    {selectedOrder.customerSince && (
+                                        <p><strong>Member Since:</strong> {formatDate(selectedOrder.customerSince)}</p>
+                                    )}
+                                    {selectedOrder.customerOrderCount > 0 && (
+                                        <p><strong>Total Orders:</strong> {selectedOrder.customerOrderCount}</p>
+                                    )}
+                                    {selectedOrder.customerTotalSpent > 0 && (
+                                        <p><strong>Lifetime Spend:</strong> {formatCurrency(selectedOrder.customerTotalSpent)}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <h4>Order Information</h4>

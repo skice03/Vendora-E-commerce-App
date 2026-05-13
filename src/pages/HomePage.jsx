@@ -38,7 +38,7 @@ export default function HomePage() {
                     apiGet('/categories')
                 ]);
                 // Sort by rating descending, take top 4 for featured grid
-                const top = productsData.sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5)).slice(0, 4);
+                const top = productsData.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0)).slice(0, 4);
                 setFeaturedProducts(top);
                 setTopCategories(categoriesData.filter(category => category.parentCategoryId === null));
             } catch (err) {

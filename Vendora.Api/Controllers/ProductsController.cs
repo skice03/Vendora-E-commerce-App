@@ -19,7 +19,7 @@ namespace Vendora.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves all products with category names (REQ-35, REQ-13).
+        /// Retrieves all products with category names and average ratings (REQ-35, REQ-13, REQ-59).
         /// Admins see all products including soft-deleted ones if requested.
         /// </summary>
         [HttpGet]
@@ -46,7 +46,15 @@ namespace Vendora.Api.Controllers
                     product.CategoryId,
                     CategoryName = product.Category != null ? product.Category.Name : "Uncategorized",
                     product.ImageUrl,
-                    product.IsDeleted
+                    product.IsDeleted,
+                    product.ViewCount,
+                    // REQ-59: Calculate average rating from Reviews table
+                    AverageRating = _context.Reviews
+                        .Where(review => review.ProductId == product.Id && !review.IsDeleted)
+                        .Select(review => (double?)review.Rating)
+                        .Average(),
+                    ReviewCount = _context.Reviews
+                        .Count(review => review.ProductId == product.Id && !review.IsDeleted)
                 })
                 .ToListAsync();
 
@@ -79,8 +87,35 @@ namespace Vendora.Api.Controllers
                 product.CategoryId,
                 CategoryName = product.Category != null ? product.Category.Name : "Uncategorized",
                 product.ImageUrl,
-                product.IsDeleted
+                product.IsDeleted,
+                product.ViewCount,
+                AverageRating = await _context.Reviews
+                    .Where(review => review.ProductId == product.Id && !review.IsDeleted)
+                    .Select(review => (double?)review.Rating)
+                    .AverageAsync(),
+                ReviewCount = await _context.Reviews
+                    .CountAsync(review => review.ProductId == product.Id && !review.IsDeleted)
             });
+        }
+
+        /// <summary>
+        /// Increments the product view count (REQ-55).
+        /// Called each time a customer visits the product detail page.
+        /// </summary>
+        [HttpPost("{id}/view")]
+        [AllowAnonymous]
+        public async Task<IActionResult> IncrementViewCountAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null || product.IsDeleted)
+            {
+                return NotFound();
+            }
+
+            product.ViewCount += 1;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { ViewCount = product.ViewCount });
         }
 
         /// <summary>

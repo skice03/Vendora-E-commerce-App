@@ -81,9 +81,9 @@ export default function ProductCard({ product }) {
             <div className="product-card__body">
                 <h3 className="product-card__name">{product.name}</h3>
                 <div className="product-card__rating">
-                    <StarRating rating={product.averageRating || 5} size="sm" />
+                    <StarRating rating={product.averageRating || 0} size="sm" />
                     <span className="product-card__reviews">
-                        ({(product.averageRating || 5).toFixed(1)})
+                        {product.reviewCount > 0 ? `(${(product.averageRating).toFixed(1)})` : 'No ratings'}
                     </span>
                 </div>
             </div>

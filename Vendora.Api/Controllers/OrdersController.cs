@@ -193,6 +193,13 @@ namespace Vendora.Api.Controllers
                     order.ShippingAddress,
                     CustomerName = order.User != null ? order.User.FirstName + " " + order.User.LastName : "Unknown",
                     CustomerEmail = order.User != null ? order.User.Email : "Unknown",
+                    // REQ-74: Customer profile info accessible from order details
+                    CustomerId = order.UserId,
+                    CustomerSince = order.User != null ? order.User.CreatedAt : DateTime.MinValue,
+                    CustomerOrderCount = _context.Orders.Count(o => o.UserId == order.UserId),
+                    CustomerTotalSpent = _context.Orders
+                        .Where(o => o.UserId == order.UserId && o.Status != "Cancelled")
+                        .Sum(o => o.TotalAmount),
                     ItemsCount = order.Items.Count,
                     Items = order.Items.Select(item => new
                     {

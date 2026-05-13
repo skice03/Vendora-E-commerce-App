@@ -25,5 +25,10 @@ namespace Vendora.Api.Models
 
         // Soft deletion flag (REQ-37)
         public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
+        /// Tracks total page views (REQ-55).
+        /// </summary>
+        public int ViewCount { get; set; } = 0;
     }
 }
