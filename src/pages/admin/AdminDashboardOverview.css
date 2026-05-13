@@ -1,3 +1,112 @@
+/* Date Range Filter */
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    background: white;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--color-gray-200);
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+}
+
+.date-filter__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-700);
+}
+
+.date-filter__input {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+}
+
+.date-filter__separator {
+    color: var(--color-gray-400);
+    font-size: var(--font-size-sm);
+}
+
+.date-filter__btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.date-filter__btn:hover {
+    opacity: 0.9;
+}
+
+.date-filter__clear {
+    padding: var(--space-2) var(--space-4);
+    background: none;
+    color: var(--color-gray-500);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    cursor: pointer;
+}
+
+.date-filter__clear:hover {
+    color: var(--color-gray-700);
+    border-color: var(--color-gray-400);
+}
+
+/* Dashboard Panel Header */
+.dashboard-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-panel__header h3 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.export-btn {
+    padding: var(--space-1) var(--space-3);
+    background: none;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.export-btn:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* KPI Badge */
+.kpi-card__badge {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 0 var(--space-2);
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-bold);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

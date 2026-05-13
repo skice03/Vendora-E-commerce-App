@@ -392,6 +392,27 @@
     margin-bottom: var(--space-3);
 }
 
+/* ---- View Count ---- */
+.product-info__views {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin: 0 0 var(--space-2) 0;
+}
+
+/* ---- Related Products ---- */
+.related-products-section {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 2px solid var(--color-gray-100);
+}
+
+.related-products-section__title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-900);
+    margin: 0 0 var(--space-6) 0;
+}
+
 @media (max-width: 768px) {
     .product-detail__grid {
         grid-template-columns: 1fr;

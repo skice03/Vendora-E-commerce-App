@@ -20,13 +20,26 @@ namespace Vendora.Api.Controllers
         // REQ-75: Admin dashboard displays real-time total revenue
         // REQ-76: Count of new orders placed on the current day
         // REQ-77: "Top 5 Customers" aggregating total spend
+        // REQ-38: Support date range filtering for revenue
         [HttpGet("stats")]
-        public async Task<IActionResult> GetDashboardStatsAsync()
+        public async Task<IActionResult> GetDashboardStatsAsync(
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
         {
-            // REQ-75: Total Revenue (SUM of all Delivered/Shipped orders to be safe, or just all non-cancelled)
-            var totalRevenue = await _context.Orders
-                .Where(o => o.Status != "Cancelled")
-                .SumAsync(o => o.TotalAmount);
+            // REQ-38: Apply date range filter to revenue calculation
+            var ordersQuery = _context.Orders
+                .Where(o => o.Status != "Cancelled");
+
+            if (startDate.HasValue)
+            {
+                ordersQuery = ordersQuery.Where(o => o.CreatedAt >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                ordersQuery = ordersQuery.Where(o => o.CreatedAt <= endDate.Value.Date.AddDays(1));
+            }
+
+            var totalRevenue = await ordersQuery.SumAsync(o => o.TotalAmount);
 
             // REQ-76: Today's orders
             var today = DateTime.UtcNow.Date;
@@ -53,12 +66,30 @@ namespace Vendora.Api.Controllers
                 .Take(5)
                 .ToListAsync();
 
+            // REQ-39: Top-selling products by quantity ordered
+            var topProducts = await _context.OrderItems
+                .Include(oi => oi.Product)
+                .Where(oi => oi.Order != null && oi.Order.Status != "Cancelled")
+                .GroupBy(oi => new { oi.ProductId, ProductName = oi.Product != null ? oi.Product.Name : "Unknown" })
+                .Select(g => new
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.ProductName,
+                    TotalSold = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
+                })
+                .OrderByDescending(p => p.TotalSold)
+                .Take(5)
+                .ToListAsync();
+
             return Ok(new
             {
                 TotalRevenue = totalRevenue,
                 NewOrdersToday = newOrdersToday,
                 TotalCustomers = totalUsers,
-                TopCustomers = topCustomers
+                TopCustomers = topCustomers,
+                TopProducts = topProducts,
+                DateFiltered = startDate.HasValue || endDate.HasValue
             });
         }
 

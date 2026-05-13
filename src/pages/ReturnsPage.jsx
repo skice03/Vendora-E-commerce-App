@@ -44,8 +44,8 @@ export default function ReturnsPage() {
                 <section className="returns-section">
                     <h2>Damaged or Defective Items</h2>
                     <p>
-                        If you received a damaged or defective item, please contact us within <strong>48 hours</strong> of delivery. 
-                        Include photos of the damage and your order number. We'll arrange a free return and send a replacement or 
+                        If you received a damaged or defective item, please contact us within <strong>48 hours</strong> of delivery.
+                        Include photos of the damage and your order number. We'll arrange a free return and send a replacement or
                         issue a full refund, including shipping costs.
                     </p>
                 </section>
@@ -57,7 +57,7 @@ export default function ReturnsPage() {
                     </p>
                     <ul>
                         <li><strong>Email:</strong> support@vendora.com</li>
-                        <li><strong>Phone:</strong> 1-800-VENDORA</li>
+                        <li><strong>Phone:</strong> +40630080790</li>
                         <li><strong>Address:</strong> Bulevardul Decebal 107, Craiova 200776</li>
                     </ul>
                 </section>

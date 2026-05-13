@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { apiGet, apiPut, apiPost, apiDelete } from '../utils/api.js';
+import { formatDate } from '../utils/formatters.js';
 import Button from '../components/ui/Button.jsx';
 import './ProfilePage.css';
 
@@ -10,6 +11,7 @@ export default function ProfilePage() {
     const { showSuccess, showError } = useToast();
 
     const [profile, setProfile] = useState({ firstName: '', lastName: '' });
+    const [accountCreatedAt, setAccountCreatedAt] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     
@@ -35,6 +37,12 @@ export default function ProfilePage() {
                 lastName: user.lastName || ''
             });
             fetchAddresses();
+            // REQ-46: Fetch account creation date
+            apiGet('/profile').then(data => {
+                if (data && data.createdAt) {
+                    setAccountCreatedAt(data.createdAt);
+                }
+            }).catch(() => {});
         }
     }, [user]);
 
@@ -158,6 +166,11 @@ export default function ProfilePage() {
                 {/* Personal Info */}
                 <section className="profile-section">
                     <h2 className="profile-section__title">Personal Information</h2>
+                    {accountCreatedAt && (
+                        <p className="profile-section__hint" style={{ marginBottom: 'var(--space-4)' }}>
+                            📅 Member since {formatDate(accountCreatedAt)}
+                        </p>
+                    )}
                     <form className="profile-form" onSubmit={handleUpdateProfile}>
                         <div className="profile-form__group">
                             <label>Email Address</label>

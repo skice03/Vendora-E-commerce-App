@@ -84,7 +84,7 @@ export default function ProductsPage() {
         if (minPrice !== '') result = result.filter(product => product.price >= Number(minPrice));
         if (maxPrice !== '') result = result.filter(product => product.price <= Number(maxPrice));
 
-        if (minRating > 0) result = result.filter(product => (product.averageRating || 5) >= minRating);
+        if (minRating > 0) result = result.filter(product => (product.averageRating || 0) >= minRating);
 
         // Sorts products by dynamic attributes (REQ-51)
         switch (sortBy) {
@@ -92,7 +92,7 @@ export default function ProductsPage() {
             case 'price_desc': result = [...result].sort((a, b) => b.price - a.price); break;
             case 'name_asc':   result = [...result].sort((a, b) => a.name.localeCompare(b.name)); break;
             case 'popular':    result = [...result].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)); break;
-            default:           result = [...result].sort((a, b) => (b.averageRating || 5) - (a.averageRating || 5));
+            default:           result = [...result].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
         }
 
         return result;
