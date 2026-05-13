@@ -22,6 +22,8 @@ import OrderConfirmationPage from './pages/OrderConfirmationPage.jsx';
 import MyOrdersPage from './pages/MyOrdersPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
+import FAQPage from './pages/FAQPage.jsx';
+import ReturnsPage from './pages/ReturnsPage.jsx';
 
 // Admin
 import AdminRoute from './components/layout/AdminRoute.jsx';
@@ -55,6 +57,8 @@ export default function App() {
                   <Route path="/orders" element={<MyOrdersPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/returns" element={<ReturnsPage />} />
                 </Route>
 
                 {/* Admin Routes (No standard layout, or separate admin layout) */}

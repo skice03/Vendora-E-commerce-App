@@ -79,3 +79,44 @@
 .admin-form-full {
     grid-column: 1 / -1;
 }
+
+/* Category dropdown in product form */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-family: var(--font-family);
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: auto;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px hsla(var(--primary-hsl), 0.15);
+}
+
+/* Category badge in product table */
+.category-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--bg-surface-hover);
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}

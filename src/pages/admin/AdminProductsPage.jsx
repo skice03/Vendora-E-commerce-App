@@ -8,6 +8,7 @@ import './AdminProductsPage.css';
 
 export default function AdminProductsPage() {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -28,6 +29,7 @@ export default function AdminProductsPage() {
 
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
     }, []);
 
     const fetchProducts = async () => {
@@ -40,6 +42,15 @@ export default function AdminProductsPage() {
             setError(err.message);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const data = await apiGet('/categories');
+            setCategories(data);
+        } catch {
+            // Silently fail — form will still work with manual ID entry
         }
     };
 
@@ -56,7 +67,7 @@ export default function AdminProductsPage() {
                 description: '',
                 price: 0,
                 stockQuantity: 0,
-                categoryId: 1,
+                categoryId: categories.length > 0 ? categories[0].id : 1,
                 imageUrl: '',
                 isDeleted: false
             });
@@ -74,6 +85,13 @@ export default function AdminProductsPage() {
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : (type === 'number' ? Number(value) : value)
+        }));
+    };
+
+    const handleCategoryChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            categoryId: parseInt(e.target.value)
         }));
     };
 
@@ -108,11 +126,27 @@ export default function AdminProductsPage() {
         }
     };
 
+    // Build a nested category display for the dropdown
+    function buildCategoryOptions() {
+        const parentCategories = categories.filter(c => !c.parentCategoryId);
+        const result = [];
 
+        parentCategories.forEach(parent => {
+            result.push({ id: parent.id, label: parent.name, isParent: true });
+            const children = categories.filter(c => c.parentCategoryId === parent.id);
+            children.forEach(child => {
+                result.push({ id: child.id, label: `  └ ${child.name}`, isParent: false });
+            });
+        });
+
+        return result;
+    }
 
     if (isLoading && products.length === 0) {
         return <div className="container" style={{ padding: '4rem 0', textAlign: 'center' }}>Loading products...</div>;
     }
+
+    const categoryOptions = buildCategoryOptions();
 
     return (
         <div className="admin-dashboard container">
@@ -134,6 +168,7 @@ export default function AdminProductsPage() {
                         <tr>
                             <th>SKU</th>
                             <th>Product Name</th>
+                            <th>Category</th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th>Status</th>
@@ -145,6 +180,9 @@ export default function AdminProductsPage() {
                             <tr key={product.id} style={{ opacity: product.isDeleted ? 0.6 : 1 }}>
                                 <td>{product.sku}</td>
                                 <td>{product.name}</td>
+                                <td>
+                                    <span className="category-badge">{product.categoryName || 'Uncategorized'}</span>
+                                </td>
                                 <td>{formatCurrency(product.price)}</td>
                                 <td>
                                     <span style={{ color: product.stockQuantity === 0 ? 'var(--danger-color)' : 'inherit' }}>
@@ -174,7 +212,7 @@ export default function AdminProductsPage() {
                         ))}
                         {products.length === 0 && (
                             <tr>
-                                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>
                                     No products found in the database.
                                 </td>
                             </tr>
@@ -234,15 +272,33 @@ export default function AdminProductsPage() {
                             onChange={handleInputChange}
                             required
                         />
-                        <Input
-                            label="Category ID"
-                            name="categoryId"
-                            type="number"
-                            min="1"
-                            value={formData.categoryId}
-                            onChange={handleInputChange}
-                            required
-                        />
+
+                        {/* Category Dropdown (replaces numeric ID input) */}
+                        <div className="form-group">
+                            <label className="form-label">Category *</label>
+                            <select
+                                name="categoryId"
+                                value={formData.categoryId}
+                                onChange={handleCategoryChange}
+                                className="form-select"
+                                required
+                            >
+                                {categoryOptions.length > 0 ? (
+                                    categoryOptions.map(opt => (
+                                        <option
+                                            key={opt.id}
+                                            value={opt.id}
+                                            style={{ fontWeight: opt.isParent ? 'bold' : 'normal' }}
+                                        >
+                                            {opt.label}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value={formData.categoryId}>Category ID: {formData.categoryId}</option>
+                                )}
+                            </select>
+                        </div>
+
                         <Input
                             label="Image URL"
                             name="imageUrl"
