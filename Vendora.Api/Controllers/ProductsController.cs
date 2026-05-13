@@ -100,7 +100,7 @@ namespace Vendora.Api.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProductsAsync), new { id = product.Id }, product);
+            return StatusCode(201, product);
         }
 
         /// <summary>

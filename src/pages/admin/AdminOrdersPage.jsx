@@ -137,7 +137,7 @@ export default function AdminOrdersPage() {
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <h3>Order #{selectedOrder.id} Details</h3>
-                            <button className="modal-close" onClick={() => setSelectedOrder(null)}>×</button>
+                            <button className="modal-close" onClick={() => setSelectedOrder(null)} aria-label="Close">×</button>
                         </div>
                         <div className="modal-body">
                             <div className="order-details-grid">
@@ -178,9 +178,6 @@ export default function AdminOrdersPage() {
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setSelectedOrder(null)}>Close</button>
                         </div>
                     </div>
                 </div>

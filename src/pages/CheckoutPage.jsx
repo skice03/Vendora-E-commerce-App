@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { apiPost } from '../utils/api.js';
+import { apiGet, apiPost } from '../utils/api.js';
 import { formatCurrency } from '../utils/formatters.js';
 import { FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import Button from '../components/ui/Button.jsx';
@@ -16,6 +16,8 @@ export default function CheckoutPage() {
     const { showSuccess, showError } = useToast();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState('new');
     const [shippingForm, setShippingForm] = useState({
         fullName: '',
         addressLine1: '',
@@ -25,6 +27,27 @@ export default function CheckoutPage() {
         zipCode: '',
         country: '',
     });
+
+    // Fetch saved addresses on mount
+    useEffect(() => {
+        async function fetchAddresses() {
+            try {
+                const addresses = await apiGet('/profile/addresses');
+                setSavedAddresses(addresses);
+                // Auto-select the default address if one exists
+                const defaultAddr = addresses.find(a => a.isDefault);
+                if (defaultAddr) {
+                    setSelectedAddressId(defaultAddr.id.toString());
+                    fillFromSavedAddress(defaultAddr);
+                }
+            } catch {
+                // Silently fail — user can still enter manually
+            }
+        }
+        if (isAuthenticated) {
+            fetchAddresses();
+        }
+    }, [isAuthenticated]);
 
     // Redirect guests away
     if (!isAuthenticated) {
@@ -48,6 +71,40 @@ export default function CheckoutPage() {
 
     const isFreeShipping = shippingCost === 0;
 
+    function fillFromSavedAddress(addr) {
+        setShippingForm({
+            fullName: '',
+            addressLine1: addr.street || '',
+            addressLine2: '',
+            city: addr.city || '',
+            state: '',
+            zipCode: addr.zipCode || '',
+            country: addr.country || '',
+        });
+    }
+
+    function handleAddressSelection(e) {
+        const value = e.target.value;
+        setSelectedAddressId(value);
+
+        if (value === 'new') {
+            setShippingForm({
+                fullName: '',
+                addressLine1: '',
+                addressLine2: '',
+                city: '',
+                state: '',
+                zipCode: '',
+                country: '',
+            });
+        } else {
+            const addr = savedAddresses.find(a => a.id === parseInt(value));
+            if (addr) {
+                fillFromSavedAddress(addr);
+            }
+        }
+    }
+
     function handleInputChange(event) {
         const { name, value } = event.target;
         setShippingForm(prev => ({ ...prev, [name]: value }));
@@ -69,7 +126,6 @@ export default function CheckoutPage() {
             shippingForm.fullName.trim() &&
             shippingForm.addressLine1.trim() &&
             shippingForm.city.trim() &&
-            shippingForm.state.trim() &&
             shippingForm.zipCode.trim() &&
             shippingForm.country.trim()
         );
@@ -112,6 +168,29 @@ export default function CheckoutPage() {
                 {/* ---- Left: Shipping Form ---- */}
                 <div className="checkout-shipping">
                     <h2 className="checkout-section-title">📦 Shipping Address</h2>
+
+                    {/* Saved Address Selector */}
+                    {savedAddresses.length > 0 && (
+                        <div className="checkout-saved-addresses">
+                            <label htmlFor="savedAddress" className="checkout-saved-addresses__label">
+                                Use a saved address
+                            </label>
+                            <select
+                                id="savedAddress"
+                                className="checkout-saved-addresses__select"
+                                value={selectedAddressId}
+                                onChange={handleAddressSelection}
+                            >
+                                <option value="new">— Enter a new address —</option>
+                                {savedAddresses.map(addr => (
+                                    <option key={addr.id} value={addr.id}>
+                                        {addr.street}, {addr.city}, {addr.zipCode}, {addr.country}
+                                        {addr.isDefault ? ' ★ Default' : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="checkout-form">
                         <div className="checkout-form__group">
@@ -166,7 +245,7 @@ export default function CheckoutPage() {
                                 />
                             </div>
                             <div className="checkout-form__group">
-                                <label htmlFor="state">State / Province *</label>
+                                <label htmlFor="state">State / Province</label>
                                 <input
                                     id="state"
                                     name="state"
@@ -174,7 +253,6 @@ export default function CheckoutPage() {
                                     value={shippingForm.state}
                                     onChange={handleInputChange}
                                     placeholder="NY"
-                                    required
                                 />
                             </div>
                         </div>
