@@ -8,8 +8,8 @@ import './HomePage.css';
 
 // Map category names to emojis for visual appeal
 const CATEGORY_ICONS = {
-    'Electronics': '💻',
-    'Laptops': '🖥️',
+    'Electronics': '🖥️',
+    'Laptops': '💻',
     'Smartphones': '📱',
     'Audio': '🎧',
     'Clothing': '👗',
@@ -62,7 +62,7 @@ export default function HomePage() {
                     </h1>
                     <p className="hero__subtitle">
                         Discover thousands of premium products across electronics, fashion,
-                        home, sports and more — all in one place.
+                        home, sports and more. All in one place.
                     </p>
                     <div className="hero__actions">
                         <Link to="/products" className="hero__btn-primary">
