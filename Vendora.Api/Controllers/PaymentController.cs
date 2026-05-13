@@ -235,18 +235,26 @@ namespace Vendora.Api.Controllers
     // Request DTOs
     public class CreateCheckoutRequest
     {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Shipping address is required.")]
         public string ShippingAddress { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "At least one item is required.")]
+        [System.ComponentModel.DataAnnotations.MinLength(1, ErrorMessage = "Order must contain at least one item.")]
         public List<CheckoutItem> Items { get; set; } = new();
     }
 
     public class CheckoutItem
     {
+        [System.ComponentModel.DataAnnotations.Range(1, int.MaxValue, ErrorMessage = "Invalid product ID.")]
         public int ProductId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(1, 100, ErrorMessage = "Quantity must be between 1 and 100.")]
         public int Quantity { get; set; }
     }
 
     public class VerifySessionRequest
     {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Session ID is required.")]
         public string SessionId { get; set; } = string.Empty;
     }
 }
