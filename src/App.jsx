@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // Context Providers
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
+import { WishlistProvider } from './context/WishlistContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 
 // Components
@@ -17,7 +18,10 @@ import ProductsPage from './pages/ProductsPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
+import OrderConfirmationPage from './pages/OrderConfirmationPage.jsx';
 import MyOrdersPage from './pages/MyOrdersPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import WishlistPage from './pages/WishlistPage.jsx';
 
 // Admin
 import AdminRoute from './components/layout/AdminRoute.jsx';
@@ -26,51 +30,45 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx';
 import AdminDashboardOverview from './pages/admin/AdminDashboardOverview.jsx';
 
-// Dummy Pages for features not yet implemented
-const DummyPage = ({ title }) => (
-  <div className="container" style={{ padding: '40px 20px', textAlign: 'center' }}>
-    <h1 className="text-dark">{title}</h1>
-    <p className="text-muted">This page will be fully implemented in a later phase.</p>
-  </div>
-);
-
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
           <ToastProvider>
-            
-            <ToastContainer />
-            
-            <Routes>
-              {/* Public & Customer Routes wrapped in standard Layout */}
-              <Route element={<Layout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/orders" element={<MyOrdersPage />} />
-                
-                {/* Remaining Dummy Pages for future phases */}
-                <Route path="/profile" element={<DummyPage title="My Profile" />} />
-                <Route path="/wishlist" element={<DummyPage title="My Wishlist" />} />
-              </Route>
-
-              {/* Admin Routes (No standard layout, or separate admin layout) */}
-                <Route element={<AdminRoute />}>
+            <WishlistProvider>
+              
+              <ToastContainer />
+              
+              <Routes>
+                {/* Public & Customer Routes wrapped in standard Layout */}
                 <Route element={<Layout />}>
-                    <Route path="/admin" element={<AdminDashboardOverview />} />
-                    <Route path="/admin/products" element={<AdminProductsPage />} />
-                    <Route path="/admin/orders" element={<AdminOrdersPage />} />
-                    <Route path="/admin/reviews" element={<AdminReviewsPage />} />
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/products/:id" element={<ProductDetailPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/checkout/success" element={<OrderConfirmationPage />} />
+                  {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
+                  <Route path="/orders" element={<MyOrdersPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
                 </Route>
-              </Route>
-            </Routes>
 
+                {/* Admin Routes (No standard layout, or separate admin layout) */}
+                  <Route element={<AdminRoute />}>
+                  <Route element={<Layout />}>
+                      <Route path="/admin" element={<AdminDashboardOverview />} />
+                      <Route path="/admin/products" element={<AdminProductsPage />} />
+                      <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                      <Route path="/admin/reviews" element={<AdminReviewsPage />} />
+                  </Route>
+                </Route>
+              </Routes>
+
+            </WishlistProvider>
           </ToastProvider>
         </CartProvider>
       </AuthProvider>

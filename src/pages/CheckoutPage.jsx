@@ -84,7 +84,7 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
 
         try {
-            const orderData = {
+            const orderPayload = {
                 shippingAddress: buildShippingAddress(),
                 items: cartItems.map(item => ({
                     productId: item.productId,
@@ -92,15 +92,14 @@ export default function CheckoutPage() {
                 })),
             };
 
-            const result = await apiPost('/orders', orderData);
-
-            // REQ-29: Clear cart after successful order
+            const response = await apiPost('/orders', orderPayload);
+            
+            // Clear cart and redirect to success page
             clearCart();
-            showSuccess(`Order #${result.orderId} placed successfully!`);
-            navigate('/orders');
+            showSuccess('Order placed successfully!');
+            navigate('/checkout/success', { state: { orderId: response.orderId } });
         } catch (err) {
             showError(err.message || 'Failed to place order. Please try again.');
-        } finally {
             setIsSubmitting(false);
         }
     }
