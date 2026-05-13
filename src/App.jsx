@@ -35,8 +35,8 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <WishlistProvider>
-            <ToastProvider>
+          <ToastProvider>
+            <WishlistProvider>
               
               <ToastContainer />
               
@@ -68,8 +68,8 @@ export default function App() {
                 </Route>
               </Routes>
 
-            </ToastProvider>
-          </WishlistProvider>
+            </WishlistProvider>
+          </ToastProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
