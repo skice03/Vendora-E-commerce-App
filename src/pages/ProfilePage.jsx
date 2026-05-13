@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { apiGet, apiPut, apiPost, apiDelete } from '../utils/api.js';
@@ -7,7 +8,8 @@ import Button from '../components/ui/Button.jsx';
 import './ProfilePage.css';
 
 export default function ProfilePage() {
-    const { user, login } = useAuth(); // login from auth context can re-hydrate user details
+    const navigate = useNavigate();
+    const { user, isLoading: authLoading, login } = useAuth();
     const { showSuccess, showError } = useToast();
 
     const [profile, setProfile] = useState({ firstName: '', lastName: '' });
@@ -156,7 +158,12 @@ export default function ProfilePage() {
         }
     }
 
-    if (!user) return <div className="container">Loading profile...</div>;
+    // Redirect to login if not authenticated
+    if (authLoading) return <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>Loading profile...</div>;
+    if (!user) {
+        navigate('/login');
+        return null;
+    }
 
     return (
         <div className="profile-page">

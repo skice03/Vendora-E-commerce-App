@@ -37,6 +37,13 @@ export default function ProductsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Sync category filter with URL search params (e.g., footer links)
+    useEffect(() => {
+        const catParam = Number(searchParams.get('category')) || 0;
+        setSelectedCategory(catParam);
+        setCurrentPage(1);
+    }, [searchParams]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {

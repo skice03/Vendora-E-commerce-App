@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../utils/api.js';
 import { useCart } from '../context/CartContext.jsx';
@@ -21,6 +21,7 @@ export default function ProductDetailPage() {
     const [reviews, setReviews] = useState([]);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const viewCountedRef = useRef(false);
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
@@ -55,8 +56,11 @@ export default function ProductDetailPage() {
                     setReviewReason(results[2].reason || '');
                 }
 
-                // REQ-55: Increment view count (fire-and-forget)
-                apiPost(`/products/${id}/view`).catch(() => {});
+                // REQ-55: Increment view count once per page visit
+                if (!viewCountedRef.current) {
+                    viewCountedRef.current = true;
+                    apiPost(`/products/${id}/view`).catch(() => {});
+                }
 
                 // REQ-53: Fetch related products (same category)
                 if (results[0] && results[0].categoryId) {
@@ -201,7 +205,12 @@ export default function ProductDetailPage() {
                     </div>
 
                     {product.viewCount > 0 && (
-                        <p className="product-info__views">👁 {product.viewCount} views</p>
+                        <p className="product-info__views">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{verticalAlign: 'middle', marginRight: '4px'}}>
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            {product.viewCount} views
+                        </p>
                     )}
 
                     <p className="product-info__sku">SKU: {product.sku}</p>

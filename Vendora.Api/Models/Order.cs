@@ -14,6 +14,16 @@ namespace Vendora.Api.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ShippingAddress { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Stripe Checkout Session ID for payment tracking.
+        /// </summary>
+        public string? StripeSessionId { get; set; }
+
+        /// <summary>
+        /// Payment status: Unpaid, Paid, Refunded.
+        /// </summary>
+        public string PaymentStatus { get; set; } = "Unpaid";
+
         public int UserId { get; set; }
         public User? User { get; set; }
 

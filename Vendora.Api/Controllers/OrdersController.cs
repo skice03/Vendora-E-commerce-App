@@ -151,6 +151,7 @@ namespace Vendora.Api.Controllers
                     order.TotalAmount,
                     // REQ-32: Display order status
                     order.Status,
+                    order.PaymentStatus,
                     order.CreatedAt,
                     order.ShippingAddress,
                     ItemsCount = order.Items.Count,
@@ -189,6 +190,7 @@ namespace Vendora.Api.Controllers
                     order.Id,
                     order.TotalAmount,
                     order.Status,
+                    order.PaymentStatus,
                     order.CreatedAt,
                     order.ShippingAddress,
                     CustomerName = order.User != null ? order.User.FirstName + " " + order.User.LastName : "Unknown",

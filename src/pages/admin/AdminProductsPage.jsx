@@ -35,7 +35,7 @@ export default function AdminProductsPage() {
     const fetchProducts = async () => {
         try {
             setIsLoading(true);
-            const data = await apiGet('/products?includeDeleted=true');
+            const data = await apiGet('/products');
             setProducts(data);
             setError(null);
         } catch (err) {
@@ -115,12 +115,13 @@ export default function AdminProductsPage() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this product?')) return;
+        if (!window.confirm('Are you sure you want to delete this product? It will be removed from the catalog.')) return;
         
         try {
             // Soft delete (REQ-37)
             await apiDelete(`/products/${id}`);
-            await fetchProducts();
+            // Immediately remove from the displayed list
+            setProducts(prev => prev.filter(p => p.id !== id));
         } catch (err) {
             alert('Failed to delete: ' + err.message);
         }

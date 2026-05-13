@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { STORAGE_KEYS, USER_ROLES } from '../utils/constants.js';
 
 const AuthContext = createContext(null);
@@ -6,21 +6,20 @@ const AuthContext = createContext(null);
 /// Provides authentication state and actions to all child components.
 /// Persists user session to localStorage (REQ-10: token in local storage).
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
+    // Initialize user synchronously from localStorage to avoid flash/redirect issues
+    const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
         if (savedUser) {
             try {
-                const parsedUser = JSON.parse(savedUser);
-                setUser(parsedUser);
+                return JSON.parse(savedUser);
             } catch {
                 localStorage.removeItem(STORAGE_KEYS.USER);
+                return null;
             }
         }
-        setIsLoading(false);
-    }, []);
+        return null;
+    });
+    const [isLoading] = useState(false);
 
     // Stores user data on successful login (REQ-08)
     function login(userData) {
