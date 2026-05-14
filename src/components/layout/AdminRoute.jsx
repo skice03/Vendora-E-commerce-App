@@ -8,12 +8,12 @@ export default function AdminRoute() {
         return <div style={{ textAlign: 'center', padding: 'var(--space-12)' }}>Loading...</div>;
     }
 
-    // Not logged in → send to login page
+    // Not logged in, send to login page
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    // Logged in but not admin → send to home page
+    // Logged in but not admin, send to home page
     if (!isAdmin) {
         return <Navigate to="/" replace />;
     }
