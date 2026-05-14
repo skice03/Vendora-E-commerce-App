@@ -67,7 +67,7 @@ export default function CartPage() {
                     <div className="cart-items-header">
                         <h2>Your Items</h2>
                         <button className="cart-clear-btn" onClick={handleClearCart}>
-                            🗑 Clear cart
+                            🗑️ Clear cart
                         </button>
                     </div>
 
