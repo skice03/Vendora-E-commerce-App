@@ -12,12 +12,15 @@ namespace Vendora.Tests.IntegrationTests
     {
         // REQ-02: Seeded admin account should exist in the database
         [Test]
-        public void SeededAdmin_ExistsInDatabase()
+        public void Should_Have_Seeded_Admin_Account_In_Database()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
 
+            // Act
             var admin = context.Users.FirstOrDefault(u => u.Role == "Admin");
 
+            // Assert
             Assert.That(admin, Is.Not.Null, "Admin account must be seeded on database creation");
             Assert.That(admin!.Email, Is.EqualTo("marinelcipu21@gmail.com"));
             Assert.That(admin.FirstName, Is.EqualTo("Marinel"));
@@ -25,12 +28,15 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-03: Seeded admin password must be hashed
         [Test]
-        public void SeededAdmin_PasswordIsHashed()
+        public void Should_Store_Admin_Password_As_BCrypt_Hash()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
 
+            // Act
             var admin = context.Users.First(u => u.Role == "Admin");
 
+            // Assert
             Assert.That(admin.PasswordHash, Does.StartWith("$2"),
                 "Admin password must be stored as BCrypt hash, never plain text (REQ-03)");
             Assert.That(admin.PasswordHash, Is.Not.EqualTo("adminvendora"),
@@ -39,34 +45,31 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-52: Categories with parent-child hierarchy should be seeded
         [Test]
-        public void SeededCategories_HaveCorrectHierarchy()
+        public void Should_Seed_Categories_With_Correct_Parent_Child_Hierarchy()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
 
+            // Act
             var allCategories = context.Categories.ToList();
-
-            // Should have 12 seeded categories total
-            Assert.That(allCategories.Count, Is.EqualTo(12), "12 categories should be seeded");
-
-            // Root categories should have no parent
             var rootCategories = allCategories.Where(c => c.ParentCategoryId == null).ToList();
-            Assert.That(rootCategories.Count, Is.EqualTo(5),
-                "5 root categories expected: Electronics, Clothing, Home & Kitchen, Sports & Outdoors, Books");
-
-            // Child categories should have a valid parent
             var electronics = allCategories.First(c => c.Name == "Electronics");
             var laptops = allCategories.First(c => c.Name == "Laptops");
+
+            // Assert
+            Assert.That(allCategories.Count, Is.EqualTo(12), "12 categories should be seeded");
+            Assert.That(rootCategories.Count, Is.EqualTo(5),
+                "5 root categories expected: Electronics, Clothing, Home & Kitchen, Sports & Outdoors, Books");
             Assert.That(laptops.ParentCategoryId, Is.EqualTo(electronics.Id),
                 "Laptops should be a child of Electronics (REQ-52)");
         }
 
-        // REQ-25: Order-Product relationship via OrderItems
+        // REQ-25, REQ-26: Order-Product relationship via OrderItems
         [Test]
-        public async Task Order_WithItems_MaintainsRelationship()
+        public async Task Should_Maintain_Order_To_OrderItems_Relationship()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
-
-            // Add a product
             var product = new Product
             {
                 Sku = "REL-001",
@@ -78,7 +81,6 @@ namespace Vendora.Tests.IntegrationTests
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            // Create an order with items
             var order = new Order
             {
                 UserId = 1,
@@ -95,10 +97,12 @@ namespace Vendora.Tests.IntegrationTests
                     }
                 }
             };
+
+            // Act
             context.Orders.Add(order);
             await context.SaveChangesAsync();
 
-            // Verify relationships
+            // Assert
             var savedOrder = context.Orders.First();
             var savedItems = context.OrderItems.Where(oi => oi.OrderId == savedOrder.Id).ToList();
 
@@ -110,10 +114,10 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-62: Wishlist stores UserID and ProductID junction
         [Test]
-        public async Task Wishlist_StoresUserProductJunction()
+        public async Task Should_Store_Wishlist_As_User_Product_Junction()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
-
             var product = new Product { Sku = "WISH-001", Name = "Wishlist Item", Price = 15m, StockQuantity = 5, CategoryId = 1 };
             context.Products.Add(product);
             await context.SaveChangesAsync();
@@ -123,9 +127,12 @@ namespace Vendora.Tests.IntegrationTests
                 UserId = 1,
                 ProductId = product.Id
             };
+
+            // Act
             context.WishlistItems.Add(wishlistItem);
             await context.SaveChangesAsync();
 
+            // Assert
             var saved = context.WishlistItems.First();
             Assert.That(saved.UserId, Is.EqualTo(1), "Wishlist must link to UserID (REQ-62)");
             Assert.That(saved.ProductId, Is.EqualTo(product.Id), "Wishlist must link to ProductID (REQ-62)");
@@ -133,10 +140,10 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-77: Monetary values must use decimal precision
         [Test]
-        public async Task MonetaryValues_UseDecimalPrecision()
+        public async Task Should_Preserve_Decimal_Precision_For_Monetary_Values()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
-
             var product = new Product
             {
                 Sku = "DEC-001",
@@ -145,11 +152,13 @@ namespace Vendora.Tests.IntegrationTests
                 StockQuantity = 1,
                 CategoryId = 1
             };
+
+            // Act
             context.Products.Add(product);
             await context.SaveChangesAsync();
-
             var saved = context.Products.First(p => p.Sku == "DEC-001");
 
+            // Assert
             Assert.That(saved.Price, Is.EqualTo(19.99m), "Price must preserve decimal precision (REQ-77)");
             Assert.That(saved.Price.GetType(), Is.EqualTo(typeof(decimal)), "Price must be stored as decimal type");
         }

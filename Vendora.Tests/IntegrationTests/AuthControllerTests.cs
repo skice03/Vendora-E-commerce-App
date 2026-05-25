@@ -32,11 +32,11 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-01, REQ-03, REQ-05: Registration with valid data should succeed
         [Test]
-        public async Task RegisterAsync_ValidUser_ReturnsOk()
+        public async Task Should_Register_User_And_Hash_Password()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
             var controller = new AuthController(context, _configuration);
-
             var newUser = new User
             {
                 FirstName = "Test",
@@ -45,8 +45,10 @@ namespace Vendora.Tests.IntegrationTests
                 PasswordHash = "SecurePass123!"
             };
 
+            // Act
             var result = await controller.RegisterAsync(newUser);
 
+            // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Registration should return 200 OK");
 
             var savedUser = context.Users.FirstOrDefault(u => u.Email == "testuser@vendora.com");
@@ -57,12 +59,11 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-02: Duplicate email registration should fail
         [Test]
-        public async Task RegisterAsync_DuplicateEmail_ReturnsBadRequest()
+        public async Task Should_Reject_Registration_When_Email_Already_Exists()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
             var controller = new AuthController(context, _configuration);
-
-            // Register first user
             var firstUser = new User
             {
                 FirstName = "First",
@@ -72,7 +73,6 @@ namespace Vendora.Tests.IntegrationTests
             };
             await controller.RegisterAsync(firstUser);
 
-            // Attempt duplicate registration
             var duplicateUser = new User
             {
                 FirstName = "Second",
@@ -80,20 +80,22 @@ namespace Vendora.Tests.IntegrationTests
                 Email = "duplicate@vendora.com",
                 PasswordHash = "AnotherPass456!"
             };
+
+            // Act
             var result = await controller.RegisterAsync(duplicateUser);
 
+            // Assert
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>(),
                 "Duplicate email registration must return 400 (REQ-02)");
         }
 
         // REQ-07, REQ-08: Login with correct credentials returns JWT token
         [Test]
-        public async Task LoginAsync_ValidCredentials_ReturnsToken()
+        public async Task Should_Return_JWT_Token_When_Credentials_Are_Valid()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
             var controller = new AuthController(context, _configuration);
-
-            // Register a user first
             var user = new User
             {
                 FirstName = "Login",
@@ -103,14 +105,16 @@ namespace Vendora.Tests.IntegrationTests
             };
             await controller.RegisterAsync(user);
 
-            // Login with correct credentials
             var loginRequest = new LoginRequest
             {
                 Email = "login@vendora.com",
                 Password = "ValidPassword1!"
             };
+
+            // Act
             var result = await controller.LoginAsync(loginRequest);
 
+            // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Valid login should return 200 OK");
 
             var okResult = result as OkObjectResult;
@@ -124,12 +128,11 @@ namespace Vendora.Tests.IntegrationTests
 
         // REQ-07: Login with wrong password should fail
         [Test]
-        public async Task LoginAsync_WrongPassword_ReturnsUnauthorized()
+        public async Task Should_Reject_Login_When_Password_Is_Wrong()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
             var controller = new AuthController(context, _configuration);
-
-            // Register a user
             var user = new User
             {
                 FirstName = "Wrong",
@@ -139,32 +142,37 @@ namespace Vendora.Tests.IntegrationTests
             };
             await controller.RegisterAsync(user);
 
-            // Login with wrong password
             var loginRequest = new LoginRequest
             {
                 Email = "wrongpass@vendora.com",
                 Password = "TotallyWrongPassword!"
             };
+
+            // Act
             var result = await controller.LoginAsync(loginRequest);
 
+            // Assert
             Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>(),
                 "Wrong password must return 401 Unauthorized (REQ-07)");
         }
 
         // REQ-07: Login with non-existent email should fail
         [Test]
-        public async Task LoginAsync_NonExistentEmail_ReturnsUnauthorized()
+        public async Task Should_Reject_Login_When_Email_Does_Not_Exist()
         {
+            // Arrange
             using var context = TestDbContextFactory.CreateContext();
             var controller = new AuthController(context, _configuration);
-
             var loginRequest = new LoginRequest
             {
                 Email = "noexist@vendora.com",
                 Password = "SomePassword1!"
             };
+
+            // Act
             var result = await controller.LoginAsync(loginRequest);
 
+            // Assert
             Assert.That(result, Is.InstanceOf<UnauthorizedObjectResult>(),
                 "Non-existent email must return 401 (REQ-07)");
         }
