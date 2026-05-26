@@ -96,11 +96,24 @@ namespace Vendora.Api.Controllers
                             {
                                 Name = product.Name,
                                 Description = product.Description?.Length > 0 ? product.Description : null,
-                                Images = !string.IsNullOrEmpty(product.ImageUrl) ? new List<string> { product.ImageUrl } : null,
+                                // Only pass absolute URLs to Stripe (uploaded images are relative paths)
+                                Images = !string.IsNullOrEmpty(product.ImageUrl) && product.ImageUrl.StartsWith("http")
+                                    ? new List<string> { product.ImageUrl } : null,
                             },
                         },
                         Quantity = item.Quantity,
                     });
+                }
+
+                // REQ-65/66: Apply promo code discount — 10% off entire order when subtotal >= $50
+                decimal promoDiscount = 0;
+                if (!string.IsNullOrWhiteSpace(request.PromoCode) && request.PromoCode.Trim().ToUpper() == "SALE10")
+                {
+                    if (totalAmount >= 50m)
+                    {
+                        promoDiscount = Math.Round(totalAmount * 0.10m, 2);
+                        totalAmount -= promoDiscount;
+                    }
                 }
 
                 // Create order with AwaitingPayment status
@@ -191,6 +204,7 @@ namespace Vendora.Api.Controllers
                 if (session.PaymentStatus == "paid")
                 {
                     order.Status = "Pending"; // Ready for fulfillment
+                    order.StatusChangedAt = DateTime.UtcNow; // REQ-72
                     order.PaymentStatus = "Paid";
                     await _context.SaveChangesAsync();
 
@@ -241,6 +255,11 @@ namespace Vendora.Api.Controllers
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "At least one item is required.")]
         [System.ComponentModel.DataAnnotations.MinLength(1, ErrorMessage = "Order must contain at least one item.")]
         public List<CheckoutItem> Items { get; set; } = new();
+
+        /// <summary>
+        /// Optional promo code applied at checkout (REQ-65/66).
+        /// </summary>
+        public string? PromoCode { get; set; }
     }
 
     public class CheckoutItem

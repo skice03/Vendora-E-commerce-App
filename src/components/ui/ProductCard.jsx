@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
-import { formatCurrency } from '../../utils/formatters.js';
+import { formatCurrency, resolveImageUrl } from '../../utils/formatters.js';
 import StarRating from './StarRating.jsx';
 import './ProductCard.css';
 
@@ -18,7 +18,12 @@ export default function ProductCard({ product }) {
 
     const isOutOfStock = product.stockQuantity === 0;
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
-    const mainImage = product.imageUrl;
+    
+    // REQ-54: Resolve image from images array or legacy imageUrl
+    const rawImage = product.images?.find(img => img.isPrimary)?.imageUrl
+        || product.images?.[0]?.imageUrl
+        || product.imageUrl;
+    const mainImage = resolveImageUrl(rawImage);
 
     function handleCardClick() {
         navigate(`/products/${product.id}`);

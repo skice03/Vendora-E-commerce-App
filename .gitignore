@@ -34,3 +34,4 @@ dist-ssr
 .vs/
 *.sqlite
 *.sqlite3
+backups/

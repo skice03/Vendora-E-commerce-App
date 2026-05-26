@@ -177,6 +177,7 @@ namespace Vendora.Api.Controllers
                     review.Comment,
                     review.CreatedAt,
                     review.IsDeleted,
+                    review.ProductId,
                     ProductName = review.Product != null ? review.Product.Name : "Unknown",
                     CustomerName = review.User != null ? review.User.FirstName + " " + review.User.LastName : "Unknown"
                 })

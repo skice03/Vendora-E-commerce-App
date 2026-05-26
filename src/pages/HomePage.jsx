@@ -77,6 +77,17 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* REQ-65: Promotional Discount Banner */}
+            <section className="sale-strip">
+                <div className="sale-strip__content">
+                    <span className="sale-strip__icon">🏷️</span>
+                    <p className="sale-strip__text">
+                        Use code <strong className="sale-strip__code">SALE10</strong> at checkout for
+                        <strong> 10% off</strong> orders over $50!
+                    </p>
+                </div>
+            </section>
+
             {/* ---- Stats Bar ---- */}
             <div className="stats-bar">
                 <div className="stats-bar__inner">

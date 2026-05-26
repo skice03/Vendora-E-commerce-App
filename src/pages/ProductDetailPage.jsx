@@ -4,7 +4,7 @@ import { apiGet, apiPost } from '../utils/api.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { formatCurrency, formatDate } from '../utils/formatters.js';
+import { formatCurrency, formatDate, resolveImageUrl } from '../utils/formatters.js';
 import StarRating from '../components/ui/StarRating.jsx';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import Button from '../components/ui/Button.jsx';
@@ -24,6 +24,8 @@ export default function ProductDetailPage() {
     const viewCountedRef = useRef(false);
     const [error, setError] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    // REQ-54: Selected image index for gallery
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
     // Review form state
     const [canReview, setCanReview] = useState(false);
@@ -178,20 +180,49 @@ export default function ProductDetailPage() {
 
             {/* Main Grid: Gallery + Info */}
             <div className="product-detail__grid">
-                {/* Gallery */}
+                {/* REQ-54: Multi-image Gallery */}
                 <div className="product-gallery">
                     <div className="product-gallery__main">
-                        {product.imageUrl ? (
-                            <img
-                                src={product.imageUrl}
-                                alt={product.name}
-                            />
-                        ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>
-                                🛍️
-                            </div>
-                        )}
+                        {(() => {
+                            const images = product.images || [];
+
+                            if (images.length > 0) {
+                                const currentImg = images[selectedImageIndex] || images[0];
+                                return (
+                                    <img
+                                        src={resolveImageUrl(currentImg.imageUrl)}
+                                        alt={`${product.name} - image ${selectedImageIndex + 1}`}
+                                    />
+                                );
+                            } else if (product.imageUrl) {
+                                return <img src={resolveImageUrl(product.imageUrl)} alt={product.name} />;
+                            } else {
+                                return (
+                                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>
+                                        🛍️
+                                    </div>
+                                );
+                            }
+                        })()}
                     </div>
+
+                    {/* Thumbnail strip */}
+                    {product.images && product.images.length > 1 && (
+                        <div className="product-gallery__thumbnails">
+                            {product.images.map((img, idx) => (
+                                <button
+                                    key={img.id}
+                                    className={`product-gallery__thumb ${idx === selectedImageIndex ? 'product-gallery__thumb--active' : ''}`}
+                                    onClick={() => setSelectedImageIndex(idx)}
+                                >
+                                    <img
+                                        src={resolveImageUrl(img.imageUrl)}
+                                        alt={`Thumbnail ${idx + 1}`}
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Info Panel */}

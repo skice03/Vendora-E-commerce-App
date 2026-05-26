@@ -218,6 +218,60 @@ namespace Vendora.Api.Controllers
             return Ok(new { Message = "Password changed successfully." });
         }
 
+        // REQ-45: GDPR account deletion — removes user and all associated data
+        public class DeleteAccountRequest
+        {
+            public string Password { get; set; } = string.Empty;
+        }
+
+        [HttpDelete("delete-account")]
+        public async Task<IActionResult> DeleteAccountAsync([FromBody] DeleteAccountRequest request)
+        {
+            var userId = GetCurrentUserId();
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null) return NotFound(new { Message = "User not found." });
+
+            // Prevent admin account deletion
+            if (user.Role == "Admin")
+            {
+                return BadRequest(new { Message = "Administrator accounts cannot be deleted." });
+            }
+
+            // Verify password before deletion
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return BadRequest(new { Message = "Incorrect password. Account deletion aborted." });
+            }
+
+            // Cascade delete all user data
+            var wishlistItems = _context.WishlistItems.Where(w => w.UserId == userId);
+            _context.WishlistItems.RemoveRange(wishlistItems);
+
+            var reviews = _context.Reviews.Where(r => r.UserId == userId);
+            _context.Reviews.RemoveRange(reviews);
+
+            var addresses = _context.Addresses.Where(a => a.UserId == userId);
+            _context.Addresses.RemoveRange(addresses);
+
+            var orders = await _context.Orders
+                .Include(o => o.Items)
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                _context.OrderItems.RemoveRange(order.Items);
+            }
+            _context.Orders.RemoveRange(orders);
+
+            _context.Users.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Your account and all associated data have been permanently deleted." });
+        }
+
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");

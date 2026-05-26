@@ -80,7 +80,8 @@ export function WishlistProvider({ children }) {
             removeFromWishlist,
             toggleWishlist,
             isInWishlist,
-            fetchWishlist
+            fetchWishlist,
+            refreshWishlist: fetchWishlist
         }}>
             {children}
         </WishlistContext.Provider>

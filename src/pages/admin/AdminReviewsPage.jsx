@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { apiGet, apiDelete, apiPut } from '../../utils/api.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { formatDate } from '../../utils/formatters.js';
@@ -85,7 +86,11 @@ export default function AdminReviewsPage() {
                             reviews.map(review => (
                                 <tr key={review.id} style={{ opacity: review.isDeleted ? 0.6 : 1 }}>
                                     <td>{formatDate(review.createdAt)}</td>
-                                    <td>{review.productName}</td>
+                                    <td>
+                                        <Link to={`/products/${review.productId}`} style={{ color: 'var(--primary-color)', fontWeight: 500, textDecoration: 'none' }}>
+                                            {review.productName}
+                                        </Link>
+                                    </td>
                                     <td>{review.customerName}</td>
                                     <td><StarRating rating={review.rating} size="sm" /></td>
                                     <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={review.comment}>

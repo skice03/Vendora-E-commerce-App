@@ -231,8 +231,9 @@ namespace Vendora.Api.Controllers
             }
 
             order.Status = request.Status;
+            order.StatusChangedAt = DateTime.UtcNow; // REQ-72: Record status change timestamp
 
-            // REQ-72 & REQ-78 & REQ-79: timestamp + audit with real Admin ID
+            // REQ-78 & REQ-79: audit with real Admin ID
             var adminId = GetCurrentUserId();
             _context.AuditLogs.Add(new AuditLog
             {
@@ -270,6 +271,7 @@ namespace Vendora.Api.Controllers
             }
 
             order.Status = "Cancelled";
+            order.StatusChangedAt = DateTime.UtcNow; // REQ-72: Record status change timestamp
 
             // Replenish stock (REQ-73)
             foreach (var item in order.Items)

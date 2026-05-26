@@ -22,8 +22,8 @@ namespace Vendora.Tests.IntegrationTests
 
             // Assert
             Assert.That(admin, Is.Not.Null, "Admin account must be seeded on database creation");
-            Assert.That(admin!.Email, Is.EqualTo("marinelcipu21@gmail.com"));
-            Assert.That(admin.FirstName, Is.EqualTo("Marinel"));
+            Assert.That(admin!.Email, Is.EqualTo("admin@vendora.com"));
+            Assert.That(admin.FirstName, Is.EqualTo("Admin"));
         }
 
         // REQ-03: Seeded admin password must be hashed

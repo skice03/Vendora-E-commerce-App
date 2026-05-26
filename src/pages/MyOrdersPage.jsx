@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { apiGet } from '../utils/api.js';
-import { formatCurrency, formatDate } from '../utils/formatters.js';
+import { formatCurrency, formatDate, resolveImageUrl } from '../utils/formatters.js';
 import './MyOrdersPage.css';
 
 const STATUS_COLORS = {
@@ -119,12 +119,14 @@ export default function MyOrdersPage() {
                                                 <tr key={index}>
                                                     <td>
                                                         <Link to={`/products/${item.productId}`} className="order-items-table__product-link">
-                                                            {item.productImage && (
+                                                            {resolveImageUrl(item.productImage) ? (
                                                                 <img
-                                                                    src={item.productImage}
+                                                                    src={resolveImageUrl(item.productImage)}
                                                                     alt={item.productName}
                                                                     className="order-items-table__img"
                                                                 />
+                                                            ) : (
+                                                                <span className="order-items-table__no-img">🛍️</span>
                                                             )}
                                                             {item.productName}
                                                         </Link>

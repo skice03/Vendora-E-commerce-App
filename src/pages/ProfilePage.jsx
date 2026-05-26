@@ -9,14 +9,14 @@ import './ProfilePage.css';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
-    const { user, isLoading: authLoading, login } = useAuth();
+    const { user, isLoading: authLoading, login, logout } = useAuth();
     const { showSuccess, showError } = useToast();
 
     const [profile, setProfile] = useState({ firstName: '', lastName: '' });
     const [accountCreatedAt, setAccountCreatedAt] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
-    
+
     // Address Form State
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [editingAddressId, setEditingAddressId] = useState(null);
@@ -32,6 +32,11 @@ export default function ProfilePage() {
     });
     const [isSavingPassword, setIsSavingPassword] = useState(false);
 
+    // REQ-45: GDPR Account Deletion State
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+
     useEffect(() => {
         if (user) {
             setProfile({
@@ -44,7 +49,7 @@ export default function ProfilePage() {
                 if (data && data.createdAt) {
                     setAccountCreatedAt(data.createdAt);
                 }
-            }).catch(() => {});
+            }).catch(() => { });
         }
     }, [user]);
 
@@ -63,7 +68,7 @@ export default function ProfilePage() {
         try {
             const data = await apiPut('/profile', profile);
             showSuccess(data.Message || 'Profile updated!');
-            
+
             // Re-hydrate auth context user info using local storage or login trick
             const storedUser = JSON.parse(localStorage.getItem('vendora_user'));
             if (storedUser) {
@@ -158,6 +163,26 @@ export default function ProfilePage() {
         }
     }
 
+    // REQ-45: GDPR account deletion handler
+    async function handleDeleteAccount(e) {
+        e.preventDefault();
+        if (!deletePassword) {
+            showError('Please enter your password to confirm deletion.');
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            await apiDelete('/profile/delete-account', { password: deletePassword });
+            showSuccess('Your account has been permanently deleted.');
+            logout();
+            navigate('/');
+        } catch (err) {
+            showError(err.message || 'Failed to delete account.');
+        } finally {
+            setIsDeleting(false);
+        }
+    }
+
     // Redirect to login if not authenticated
     if (authLoading) return <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>Loading profile...</div>;
     if (!user) {
@@ -168,7 +193,7 @@ export default function ProfilePage() {
     return (
         <div className="profile-page">
             <h1 className="profile-page__heading">My Profile</h1>
-            
+
             <div className="profile-layout">
                 {/* Personal Info */}
                 <section className="profile-section">
@@ -186,20 +211,20 @@ export default function ProfilePage() {
                         </div>
                         <div className="profile-form__group">
                             <label>First Name</label>
-                            <input 
-                                type="text" 
-                                value={profile.firstName} 
-                                onChange={e => setProfile({...profile, firstName: e.target.value})} 
-                                required 
+                            <input
+                                type="text"
+                                value={profile.firstName}
+                                onChange={e => setProfile({ ...profile, firstName: e.target.value })}
+                                required
                             />
                         </div>
                         <div className="profile-form__group">
                             <label>Last Name</label>
-                            <input 
-                                type="text" 
-                                value={profile.lastName} 
-                                onChange={e => setProfile({...profile, lastName: e.target.value})} 
-                                required 
+                            <input
+                                type="text"
+                                value={profile.lastName}
+                                onChange={e => setProfile({ ...profile, lastName: e.target.value })}
+                                required
                             />
                         </div>
                         <Button type="submit" variant="primary" isLoading={isSavingProfile}>
@@ -227,23 +252,23 @@ export default function ProfilePage() {
                             <div className="address-form__grid">
                                 <div className="profile-form__group">
                                     <label>Street Address</label>
-                                    <input type="text" required value={addressForm.street} onChange={e => setAddressForm({...addressForm, street: e.target.value})} />
+                                    <input type="text" required value={addressForm.street} onChange={e => setAddressForm({ ...addressForm, street: e.target.value })} />
                                 </div>
                                 <div className="profile-form__group">
                                     <label>City</label>
-                                    <input type="text" required value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} />
+                                    <input type="text" required value={addressForm.city} onChange={e => setAddressForm({ ...addressForm, city: e.target.value })} />
                                 </div>
                                 <div className="profile-form__group">
                                     <label>Zip Code</label>
-                                    <input type="text" required value={addressForm.zipCode} onChange={e => setAddressForm({...addressForm, zipCode: e.target.value})} />
+                                    <input type="text" required value={addressForm.zipCode} onChange={e => setAddressForm({ ...addressForm, zipCode: e.target.value })} />
                                 </div>
                                 <div className="profile-form__group">
                                     <label>Country</label>
-                                    <input type="text" required value={addressForm.country} onChange={e => setAddressForm({...addressForm, country: e.target.value})} />
+                                    <input type="text" required value={addressForm.country} onChange={e => setAddressForm({ ...addressForm, country: e.target.value })} />
                                 </div>
                             </div>
                             <label className="address-form__checkbox">
-                                <input type="checkbox" checked={addressForm.isDefault} onChange={e => setAddressForm({...addressForm, isDefault: e.target.checked})} />
+                                <input type="checkbox" checked={addressForm.isDefault} onChange={e => setAddressForm({ ...addressForm, isDefault: e.target.checked })} />
                                 Set as default shipping address
                             </label>
                             <div className="address-form__actions">
@@ -289,37 +314,37 @@ export default function ProfilePage() {
                             </Button>
                         )}
                     </div>
-                    
+
                     {showPasswordForm && (
                         <form className="profile-form" onSubmit={handleChangePassword}>
                             <div className="profile-form__group">
                                 <label>Current Password</label>
-                                <input 
-                                    type="password" 
-                                    required 
-                                    value={passwordForm.currentPassword} 
-                                    onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordForm.currentPassword}
+                                    onChange={e => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                                     placeholder="Enter current password"
                                 />
                             </div>
                             <div className="profile-form__group">
                                 <label>New Password</label>
-                                <input 
-                                    type="password" 
-                                    required 
+                                <input
+                                    type="password"
+                                    required
                                     minLength={8}
-                                    value={passwordForm.newPassword} 
-                                    onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                                    value={passwordForm.newPassword}
+                                    onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                                     placeholder="Min. 8 characters"
                                 />
                             </div>
                             <div className="profile-form__group">
                                 <label>Confirm New Password</label>
-                                <input 
-                                    type="password" 
-                                    required 
-                                    value={passwordForm.confirmPassword} 
-                                    onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordForm.confirmPassword}
+                                    onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                                     placeholder="Re-enter new password"
                                 />
                             </div>
@@ -333,13 +358,61 @@ export default function ProfilePage() {
                             </div>
                         </form>
                     )}
-                    
+
                     {!showPasswordForm && (
                         <p className="profile-section__hint">
                             Keep your account secure by using a strong, unique password.
                         </p>
                     )}
                 </section>
+
+                {/* REQ-45: GDPR Account Deletion — Danger Zone */}
+                {user?.role !== 'Admin' && (
+                    <section className="profile-section profile-section--danger">
+                        <h2 className="profile-section__title profile-section__title--danger">⚠️ Delete my account</h2>
+                        <p className="profile-section__hint">
+                            Permanently delete your account and all associated data (orders, reviews, wishlist, addresses).
+                            This action <strong>cannot be undone</strong>.
+                        </p>
+
+                        {!showDeleteConfirm ? (
+                            <Button
+                                variant="ghost"
+                                onClick={() => setShowDeleteConfirm(true)}
+                                style={{ color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}
+                            >
+                                🗑️ Delete My Account
+                            </Button>
+                        ) : (
+                            <form className="profile-form" onSubmit={handleDeleteAccount}>
+                                <p style={{ color: 'var(--danger-color)', fontWeight: 600, marginBottom: '0.75rem' }}>
+                                    Please enter your password to confirm account deletion:
+                                </p>
+                                <div className="profile-form__group">
+                                    <input
+                                        type="password"
+                                        required
+                                        value={deletePassword}
+                                        onChange={e => setDeletePassword(e.target.value)}
+                                        placeholder="Enter your password"
+                                    />
+                                </div>
+                                <div className="address-form__actions">
+                                    <Button type="submit" variant="primary" isLoading={isDeleting}
+                                        style={{ backgroundColor: 'var(--danger-color)' }}
+                                    >
+                                        Permanently Delete Account
+                                    </Button>
+                                    <Button type="button" variant="outline"
+                                        onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </form>
+                        )}
+                    </section>
+                )}
             </div>
         </div>
     );

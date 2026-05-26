@@ -1,4 +1,12 @@
-import { CURRENCY_SYMBOL, CURRENCY_DECIMAL_PLACES } from './constants.js';
+import { CURRENCY_SYMBOL, CURRENCY_DECIMAL_PLACES, API_BASE_URL } from './constants.js';
+
+/// Resolves a product image URL — converts relative paths to absolute backend URLs.
+/// Returns null if the URL is empty/null (caller should show placeholder).
+export function resolveImageUrl(url) {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${API_BASE_URL.replace('/api', '')}${url}`;
+}
 
 /// Formats a decimal number as a currency string (e.g., $29.99)
 export function formatCurrency(amount) {

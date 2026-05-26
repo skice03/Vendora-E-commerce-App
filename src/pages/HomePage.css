@@ -198,14 +198,51 @@
     gap: var(--space-6);
 }
 
-/* ---- Promo Banner ---- */
-.promo-banner {
-    background: var(--color-primary-gradient);
-    border-radius: var(--radius-2xl);
-    padding: var(--space-10) var(--space-8);
+/* ---- Sale Strip (blends with hero) ---- */
+.sale-strip {
+    /* Must match hero's end color (#4c1d95) to blend seamlessly */
+    background: #4c1d95;
+    padding: var(--space-3) var(--space-6);
+    text-align: center;
+}
+
+.sale-strip__content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: var(--space-3);
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+}
+
+.sale-strip__icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.sale-strip__text {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: rgba(255,255,255,0.9);
+}
+
+.sale-strip__code {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: var(--radius-md);
+    letter-spacing: 0.05em;
+    color: #fbbf24;
+    font-size: 1.1em;
+}
+
+/* ---- Free Shipping Promo Banner (rounded) ---- */
+.promo-banner {
+    background: linear-gradient(135deg, #312e81 0%, #4c1d95 100%);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8) var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: var(--space-6);
     flex-wrap: wrap;
 }
