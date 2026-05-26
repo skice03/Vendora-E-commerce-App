@@ -12,10 +12,12 @@ namespace Vendora.Api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context, IWebHostEnvironment env = null!)
         {
             _context = context;
+            _env = env;
         }
 
         /// <summary>
@@ -48,6 +50,12 @@ namespace Vendora.Api.Controllers
                     product.ImageUrl,
                     product.IsDeleted,
                     product.ViewCount,
+                    // REQ-54: Include all product images
+                    Images = _context.ProductImages
+                        .Where(img => img.ProductId == product.Id)
+                        .OrderBy(img => img.DisplayOrder)
+                        .Select(img => new { img.Id, img.ImageUrl, img.DisplayOrder, img.IsPrimary })
+                        .ToList(),
                     // REQ-59: Calculate average rating from Reviews table
                     AverageRating = _context.Reviews
                         .Where(review => review.ProductId == product.Id && !review.IsDeleted)
@@ -89,6 +97,12 @@ namespace Vendora.Api.Controllers
                 product.ImageUrl,
                 product.IsDeleted,
                 product.ViewCount,
+                // REQ-54: Include all product images
+                Images = await _context.ProductImages
+                    .Where(img => img.ProductId == product.Id)
+                    .OrderBy(img => img.DisplayOrder)
+                    .Select(img => new { img.Id, img.ImageUrl, img.DisplayOrder, img.IsPrimary })
+                    .ToListAsync(),
                 AverageRating = await _context.Reviews
                     .Where(review => review.ProductId == product.Id && !review.IsDeleted)
                     .Select(review => (double?)review.Rating)
@@ -116,6 +130,153 @@ namespace Vendora.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { ViewCount = product.ViewCount });
+        }
+
+        /// <summary>
+        /// Uploads a product image file to wwwroot/uploads/products/ (REQ-54).
+        /// Returns the relative URL path for storage in ProductImage records.
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImageAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "No file provided." });
+            }
+
+            // Validate file type
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
+            if (!allowedTypes.Contains(file.ContentType.ToLower()))
+            {
+                return BadRequest(new { message = "Only JPEG, PNG, WebP, and GIF images are allowed." });
+            }
+
+            // Limit file size to 5MB
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size must be under 5MB." });
+            }
+
+            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "products");
+            Directory.CreateDirectory(uploadsDir);
+
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imageUrl = $"/uploads/products/{fileName}";
+
+            return Ok(new { imageUrl });
+        }
+
+        /// <summary>
+        /// Adds an image record to a product (REQ-54).
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/images")]
+        public async Task<IActionResult> AddProductImageAsync(int id, [FromBody] ProductImageRequest request)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound(new { message = "Product not found." });
+            }
+
+            // If this is marked primary, unmark others
+            if (request.IsPrimary)
+            {
+                var existingImages = await _context.ProductImages
+                    .Where(img => img.ProductId == id)
+                    .ToListAsync();
+                foreach (var img in existingImages) img.IsPrimary = false;
+            }
+
+            var productImage = new ProductImage
+            {
+                ProductId = id,
+                ImageUrl = request.ImageUrl,
+                DisplayOrder = request.DisplayOrder,
+                IsPrimary = request.IsPrimary
+            };
+
+            // Also update the legacy ImageUrl field with the primary image
+            if (request.IsPrimary)
+            {
+                product.ImageUrl = request.ImageUrl;
+            }
+
+            _context.ProductImages.Add(productImage);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(201, new { productImage.Id, productImage.ImageUrl, productImage.DisplayOrder, productImage.IsPrimary });
+        }
+
+        /// <summary>
+        /// Deletes a product image (REQ-54).
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("images/{imageId}")]
+        public async Task<IActionResult> DeleteProductImageAsync(int imageId)
+        {
+            var image = await _context.ProductImages.FindAsync(imageId);
+            if (image == null)
+            {
+                return NotFound(new { message = "Image not found." });
+            }
+
+            var wasPrimary = image.IsPrimary;
+            var productId = image.ProductId;
+
+            _context.ProductImages.Remove(image);
+            await _context.SaveChangesAsync();
+
+            // If the deleted image was primary, promote the next remaining image
+            if (wasPrimary)
+            {
+                var nextImage = await _context.ProductImages
+                    .Where(img => img.ProductId == productId)
+                    .OrderBy(img => img.DisplayOrder)
+                    .FirstOrDefaultAsync();
+
+                if (nextImage != null)
+                {
+                    nextImage.IsPrimary = true;
+
+                    // Sync the product's legacy ImageUrl with the new primary
+                    var product = await _context.Products.FindAsync(productId);
+                    if (product != null)
+                    {
+                        product.ImageUrl = nextImage.ImageUrl;
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    // No images left — clear the product's ImageUrl
+                    var product = await _context.Products.FindAsync(productId);
+                    if (product != null)
+                    {
+                        product.ImageUrl = string.Empty;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+
+            return NoContent();
+        }
+
+        public class ProductImageRequest
+        {
+            public string ImageUrl { get; set; } = string.Empty;
+            public int DisplayOrder { get; set; } = 0;
+            public bool IsPrimary { get; set; } = false;
         }
 
         /// <summary>

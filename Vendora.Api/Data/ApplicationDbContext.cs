@@ -20,6 +20,7 @@ namespace Vendora.Api.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,9 +55,9 @@ namespace Vendora.Api.Data
             modelBuilder.Entity<User>().HasData(new User
             {
                 Id = 1,
-                FirstName = "Marinel",
-                LastName = "Cipu",
-                Email = "marinelcipu21@gmail.com",
+                FirstName = "Admin",
+                LastName = "Vendora",
+                Email = "admin@vendora.com",
                 PasswordHash = "$2a$11$g1zVIcC.l0LBmG0xZ1V7Xe/GwoR9pfE/OXDdzzOgcW1iEN0yiDbSy", // 'adminvendora'
                 Role = "Admin"
             });

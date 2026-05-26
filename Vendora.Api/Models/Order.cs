@@ -11,6 +11,12 @@ namespace Vendora.Api.Models
 
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = "Pending";
+
+        /// <summary>
+        /// Records the timestamp of the last status change (REQ-72).
+        /// </summary>
+        public DateTime? StatusChangedAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ShippingAddress { get; set; } = string.Empty;
 

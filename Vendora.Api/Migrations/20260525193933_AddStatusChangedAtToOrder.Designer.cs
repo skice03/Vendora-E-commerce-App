@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendora.Api.Data;
 
@@ -10,9 +11,11 @@ using Vendora.Api.Data;
 namespace Vendora.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260525193933_AddStatusChangedAtToOrder")]
+    partial class AddStatusChangedAtToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,10 +395,10 @@ namespace Vendora.Api.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 26, 10, 38, 1, 180, DateTimeKind.Utc).AddTicks(2970),
-                            Email = "admin@vendora.com",
-                            FirstName = "Admin",
-                            LastName = "Vendora",
+                            CreatedAt = new DateTime(2026, 5, 25, 19, 39, 33, 697, DateTimeKind.Utc).AddTicks(1570),
+                            Email = "marinelcipu21@gmail.com",
+                            FirstName = "Marinel",
+                            LastName = "Cipu",
                             PasswordHash = "$2a$11$g1zVIcC.l0LBmG0xZ1V7Xe/GwoR9pfE/OXDdzzOgcW1iEN0yiDbSy",
                             Role = "Admin"
                         });

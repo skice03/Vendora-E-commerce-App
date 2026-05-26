@@ -193,6 +193,16 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* REQ-45: Danger Zone styling */
+.profile-section--danger {
+    border: 2px solid var(--danger-color);
+    background: rgba(239, 68, 68, 0.04);
+}
+
+.profile-section__title--danger {
+    color: var(--danger-color);
+}
+
 @media (max-width: 768px) {
     .profile-layout {
         grid-template-columns: 1fr;

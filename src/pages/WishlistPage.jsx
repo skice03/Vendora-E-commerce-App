@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { apiPost } from '../utils/api.js';
 import ProductCard from '../components/ui/ProductCard.jsx';
 import Button from '../components/ui/Button.jsx';
 import './WishlistPage.css';
@@ -11,11 +12,19 @@ import './WishlistPage.css';
 export default function WishlistPage() {
     const { user } = useAuth();
     const { addToCart } = useCart();
-    const { wishlistItems, isLoading, removeFromWishlist } = useWishlist();
+    const { wishlistItems, isLoading, removeFromWishlist, refreshWishlist } = useWishlist();
+    const { showSuccess, showError } = useToast();
 
+    // REQ-64: Transactional move from wishlist to cart via backend
     async function handleMoveToCart(item) {
-        addToCart(item.product, 1);
-        await removeFromWishlist(item.productId);
+        try {
+            const result = await apiPost(`/wishlist/${item.productId}/move-to-cart`);
+            addToCart(result.product, 1);
+            refreshWishlist();
+            showSuccess(`"${result.product.name}" moved to cart!`);
+        } catch (err) {
+            showError(err.message || 'Failed to move item to cart.');
+        }
     }
 
     if (!user) return <div className="container">Please log in to view your wishlist.</div>;

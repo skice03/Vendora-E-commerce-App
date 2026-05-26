@@ -82,8 +82,38 @@ export function apiPut(endpoint, body) {
     });
 }
 
-export function apiDelete(endpoint) {
-    return apiFetch(endpoint, { method: 'DELETE' });
+export function apiDelete(endpoint, body = null) {
+    const options = { method: 'DELETE' };
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+    return apiFetch(endpoint, options);
+}
+
+/// Uploads a file via multipart/form-data (REQ-54: product image uploads)
+export function apiUpload(endpoint, formData) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const token = getAuthToken();
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    // Do NOT set Content-Type — browser sets it with boundary automatically
+    return fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+    }).then(async (response) => {
+        if (!response.ok) {
+            let errorMessage = `Upload failed with status ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch {}
+            throw new Error(errorMessage);
+        }
+        return response.json();
+    });
 }
 
 export default apiFetch;

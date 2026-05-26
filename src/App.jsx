@@ -27,6 +27,7 @@ import ReturnsPage from './pages/ReturnsPage.jsx';
 
 // Admin
 import AdminRoute from './components/layout/AdminRoute.jsx';
+import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProductsPage from './pages/admin/AdminProductsPage.jsx';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage.jsx';
@@ -43,7 +44,7 @@ export default function App() {
               <ToastContainer />
               
               <Routes>
-                {/* Public & Customer Routes wrapped in standard Layout */}
+                {/* Public Routes wrapped in standard Layout */}
                 <Route element={<Layout />}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<LoginPage />} />
@@ -51,14 +52,17 @@ export default function App() {
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/:id" element={<ProductDetailPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/checkout/success" element={<OrderConfirmationPage />} />
-                  {/* Protected Customer Routes (Auth logic to be added in Phase 2) */}
-                  <Route path="/orders" element={<MyOrdersPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/returns" element={<ReturnsPage />} />
+
+                  {/* Protected Customer Routes — redirect to /login if not authenticated */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/checkout/success" element={<OrderConfirmationPage />} />
+                    <Route path="/orders" element={<MyOrdersPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                  </Route>
                 </Route>
 
                 {/* Admin Routes (No standard layout, or separate admin layout) */}

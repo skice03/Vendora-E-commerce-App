@@ -55,6 +55,9 @@ builder.Services.AddOpenApi();
 // Configure Stripe
 Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+// REQ-68: Background worker to clean up abandoned carts older than 7 days
+builder.Services.AddHostedService<Vendora.Api.Services.AbandonedCartCleanupService>();
+
 var app = builder.Build();
 
 // http pipeline
@@ -65,7 +68,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowReact");
 
-app.UseHttpsRedirection();
+// Serve static files from wwwroot (uploaded product images)
+app.UseStaticFiles();
+
 
 app.UseAuthentication();
 app.UseAuthorization();

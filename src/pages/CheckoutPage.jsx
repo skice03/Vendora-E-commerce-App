@@ -17,6 +17,13 @@ export default function CheckoutPage() {
     const { showSuccess, showError, showWarning } = useToast();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // REQ-65/66: Promo code state
+    const [promoCode, setPromoCode] = useState('');
+    const [promoDiscount, setPromoDiscount] = useState(0);
+    const [promoMessage, setPromoMessage] = useState('');
+    const [promoValid, setPromoValid] = useState(false);
+    const [isValidatingPromo, setIsValidatingPromo] = useState(false);
     const [savedAddresses, setSavedAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState('new');
     const [shippingForm, setShippingForm] = useState({
@@ -139,6 +146,50 @@ export default function CheckoutPage() {
         );
     }
 
+    // REQ-65: Validate promo code against backend
+    async function handleApplyPromo() {
+        if (!promoCode.trim()) {
+            showError('Please enter a promo code.');
+            return;
+        }
+        setIsValidatingPromo(true);
+        try {
+            const result = await apiPost('/promo/validate', {
+                code: promoCode,
+                cartSubtotal: subtotal,
+                items: cartItems.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                })),
+            });
+            setPromoDiscount(result.discount || 0);
+            setPromoMessage(result.message);
+            setPromoValid(result.valid);
+            if (result.valid) {
+                showSuccess(result.message);
+            } else {
+                showError(result.message);
+            }
+        } catch (err) {
+            showError(err.message || 'Failed to validate promo code.');
+            setPromoValid(false);
+            setPromoDiscount(0);
+        } finally {
+            setIsValidatingPromo(false);
+        }
+    }
+
+    function handleRemovePromo() {
+        setPromoCode('');
+        setPromoDiscount(0);
+        setPromoMessage('');
+        setPromoValid(false);
+    }
+
+    const finalTotal = cartTotal - promoDiscount;
+
     async function handleStripeCheckout() {
         if (!isFormValid()) {
             showError('Please fill in all required shipping fields.');
@@ -154,6 +205,7 @@ export default function CheckoutPage() {
                     productId: item.productId,
                     quantity: item.quantity,
                 })),
+                promoCode: promoValid ? promoCode : null,
             };
 
             const response = await apiPost('/payment/create-checkout-session', payload);
@@ -324,6 +376,39 @@ export default function CheckoutPage() {
                         ))}
                     </div>
 
+                    {/* REQ-65: Promo Code Input */}
+                    <div className="checkout-promo">
+                        <label className="checkout-promo__label">🏷️ Promo Code</label>
+                        {promoValid ? (
+                            <div className="checkout-promo__applied">
+                                <span className="checkout-promo__code-badge">{promoCode.toUpperCase()}</span>
+                                <span className="checkout-promo__savings">-{formatCurrency(promoDiscount)}</span>
+                                <button className="checkout-promo__remove" onClick={handleRemovePromo}>✕</button>
+                            </div>
+                        ) : (
+                            <div className="checkout-promo__input-row">
+                                <input
+                                    type="text"
+                                    value={promoCode}
+                                    onChange={e => setPromoCode(e.target.value)}
+                                    placeholder="Enter code (e.g. SALE10)"
+                                    className="checkout-promo__input"
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleApplyPromo}
+                                    isLoading={isValidatingPromo}
+                                >
+                                    Apply
+                                </Button>
+                            </div>
+                        )}
+                        {promoMessage && !promoValid && (
+                            <p className="checkout-promo__error">{promoMessage}</p>
+                        )}
+                    </div>
+
                     <div className="checkout-totals">
                         <div className="checkout-totals__line">
                             <span>Subtotal</span>
@@ -337,9 +422,15 @@ export default function CheckoutPage() {
                                 <span>{formatCurrency(shippingCost)}</span>
                             )}
                         </div>
+                        {promoValid && promoDiscount > 0 && (
+                            <div className="checkout-totals__line checkout-totals__line--discount">
+                                <span>Discount (SALE10)</span>
+                                <span style={{ color: 'var(--success-color, #22c55e)' }}>-{formatCurrency(promoDiscount)}</span>
+                            </div>
+                        )}
                         <div className="checkout-totals__line checkout-totals__line--total">
                             <span>Total</span>
-                            <span>{formatCurrency(cartTotal)}</span>
+                            <span>{formatCurrency(finalTotal)}</span>
                         </div>
                     </div>
 
@@ -355,7 +446,7 @@ export default function CheckoutPage() {
                                 <svg className="stripe-checkout-btn__lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                 </svg>
-                                Pay {formatCurrency(cartTotal)} with Stripe
+                                Pay {formatCurrency(finalTotal)} with Stripe
                             </>
                         )}
                     </button>

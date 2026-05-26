@@ -83,7 +83,7 @@ export default function LoginPage() {
                         />
 
                         <div style={{ textAlign: 'right', marginTop: '-var(--space-2)' }}>
-                            <Link to="/forgot-password" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)', textDecoration: 'none' }}>
+                            <Link to="/faq" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)', textDecoration: 'none' }}>
                                 Forgot Password?
                             </Link>
                         </div>

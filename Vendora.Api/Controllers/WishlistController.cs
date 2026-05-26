@@ -96,6 +96,49 @@ namespace Vendora.Api.Controllers
             return Ok(new { message = "Removed from wishlist." });
         }
 
+        // REQ-64: Move item from wishlist to cart (transactional DB move)
+        [HttpPost("{productId}/move-to-cart")]
+        public async Task<IActionResult> MoveToCart(int productId)
+        {
+            var userId = GetCurrentUserId();
+
+            var wishlistItem = await _context.WishlistItems
+                .FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId);
+
+            if (wishlistItem == null)
+            {
+                return NotFound(new { message = "Item not in wishlist." });
+            }
+
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null || product.IsDeleted)
+            {
+                return BadRequest(new { message = "Product is no longer available." });
+            }
+
+            if (product.StockQuantity < 1)
+            {
+                return BadRequest(new { message = "Product is out of stock." });
+            }
+
+            // Transactional: remove from wishlist in a single save
+            _context.WishlistItems.Remove(wishlistItem);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Moved to cart.",
+                product = new
+                {
+                    product.Id,
+                    product.Name,
+                    product.Price,
+                    product.ImageUrl,
+                    product.StockQuantity
+                }
+            });
+        }
+
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
