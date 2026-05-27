@@ -106,6 +106,7 @@ namespace Vendora.Api.Controllers
                 }
 
                 // REQ-65/66: Apply promo code discount — 10% off entire order when subtotal >= $50
+                decimal preDiscountSubtotal = totalAmount;
                 decimal promoDiscount = 0;
                 if (!string.IsNullOrWhiteSpace(request.PromoCode) && request.PromoCode.Trim().ToUpper() == "SALE10")
                 {
@@ -115,6 +116,14 @@ namespace Vendora.Api.Controllers
                         totalAmount -= promoDiscount;
                     }
                 }
+
+                // Calculate shipping cost based on pre-discount subtotal
+                const decimal FREE_SHIPPING_THRESHOLD = 75m;
+                const decimal DEFAULT_SHIPPING_COST = 9.99m;
+                decimal shippingCost = preDiscountSubtotal >= FREE_SHIPPING_THRESHOLD ? 0m : DEFAULT_SHIPPING_COST;
+
+                // Include shipping in the order total
+                totalAmount += shippingCost;
 
                 // Create order with AwaitingPayment status
                 var order = new Order
@@ -145,7 +154,40 @@ namespace Vendora.Api.Controllers
                         { "orderId", order.Id.ToString() }
                     },
                     CustomerEmail = (await _context.Users.FindAsync(userId))?.Email,
+                    ShippingOptions = new List<SessionShippingOptionOptions>
+                    {
+                        new SessionShippingOptionOptions
+                        {
+                            ShippingRateData = new SessionShippingOptionShippingRateDataOptions
+                            {
+                                Type = "fixed_amount",
+                                FixedAmount = new SessionShippingOptionShippingRateDataFixedAmountOptions
+                                {
+                                    Amount = (long)(shippingCost * 100),
+                                    Currency = "usd",
+                                },
+                                DisplayName = shippingCost == 0 ? "Free Shipping" : "Standard Shipping",
+                            },
+                        },
+                    },
                 };
+
+                // Apply promo discount via Stripe Coupon if applicable
+                if (promoDiscount > 0)
+                {
+                    var couponService = new Stripe.CouponService();
+                    var coupon = await couponService.CreateAsync(new Stripe.CouponCreateOptions
+                    {
+                        AmountOff = (long)(promoDiscount * 100),
+                        Currency = "usd",
+                        Duration = "once",
+                        Name = "SALE10 — 10% Off",
+                    });
+                    sessionOptions.Discounts = new List<SessionDiscountOptions>
+                    {
+                        new SessionDiscountOptions { Coupon = coupon.Id }
+                    };
+                }
 
                 var sessionService = new SessionService();
                 var session = await sessionService.CreateAsync(sessionOptions);

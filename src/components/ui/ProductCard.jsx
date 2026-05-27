@@ -20,10 +20,17 @@ export default function ProductCard({ product }) {
     const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
     
     // REQ-54: Resolve image from images array or legacy imageUrl
-    const rawImage = product.images?.find(img => img.isPrimary)?.imageUrl
-        || product.images?.[0]?.imageUrl
-        || product.imageUrl;
-    const mainImage = resolveImageUrl(rawImage);
+    function getDisplayImage() {
+        if (product.images && product.images.length > 0) {
+            const primary = product.images.find(img => img.isPrimary);
+            return resolveImageUrl(primary?.imageUrl || product.images[0]?.imageUrl);
+        }
+        if (product.images && product.images.length === 0) {
+            return null;
+        }
+        return product.imageUrl ? resolveImageUrl(product.imageUrl) : null;
+    }
+    const mainImage = getDisplayImage();
 
     function handleCardClick() {
         navigate(`/products/${product.id}`);

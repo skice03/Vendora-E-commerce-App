@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { apiGet, apiPost } from '../utils/api.js';
-import { formatCurrency } from '../utils/formatters.js';
+import { formatCurrency, resolveImageUrl } from '../utils/formatters.js';
 import { FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import Button from '../components/ui/Button.jsx';
 import './CheckoutPage.css';
@@ -360,7 +360,7 @@ export default function CheckoutPage() {
                             <div key={item.productId} className="checkout-item">
                                 <div className="checkout-item__image">
                                     {item.image ? (
-                                        <img src={item.image} alt={item.name} />
+                                        <img src={resolveImageUrl(item.image)} alt={item.name} />
                                     ) : (
                                         <div className="checkout-item__placeholder">🛍️</div>
                                     )}

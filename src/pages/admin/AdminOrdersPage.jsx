@@ -112,23 +112,27 @@ export default function AdminOrdersPage() {
                                         </select>
                                     </td>
                                     <td>
-                                        <div className="admin-actions">
+                                        <div className="order-actions">
                                             <button 
-                                                className="btn-icon btn-view" 
+                                                className="order-action-btn order-action-btn--view" 
                                                 onClick={() => setSelectedOrder(order)}
                                                 title="View Details"
                                             >
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                                                 </svg>
+                                                <span>View</span>
                                             </button>
-                                            {order.status !== 'Cancelled' && (
+                                            {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
                                                 <button 
-                                                    className="btn-icon btn-delete" 
+                                                    className="order-action-btn order-action-btn--cancel" 
                                                     onClick={() => handleCancelOrder(order.id)}
                                                     title="Cancel Order"
                                                 >
-                                                    ❌
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+                                                    </svg>
+                                                    <span>Cancel</span>
                                                 </button>
                                             )}
                                         </div>

@@ -254,16 +254,16 @@ namespace Vendora.Api.Controllers
             var addresses = _context.Addresses.Where(a => a.UserId == userId);
             _context.Addresses.RemoveRange(addresses);
 
+            // Anonymize orders — preserve revenue but remove PII (REQ-45)
             var orders = await _context.Orders
-                .Include(o => o.Items)
                 .Where(o => o.UserId == userId)
                 .ToListAsync();
 
             foreach (var order in orders)
             {
-                _context.OrderItems.RemoveRange(order.Items);
+                order.UserId = null;
+                order.ShippingAddress = "[Deleted Account]";
             }
-            _context.Orders.RemoveRange(orders);
 
             _context.Users.Remove(user);
 

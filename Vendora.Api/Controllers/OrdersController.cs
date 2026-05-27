@@ -144,6 +144,7 @@ namespace Vendora.Api.Controllers
                 .Where(order => order.UserId == userId)
                 .Include(order => order.Items)
                 .ThenInclude(item => item.Product)
+                .ThenInclude(product => product!.Images)
                 .OrderByDescending(order => order.CreatedAt)
                 .Select(order => new
                 {
@@ -159,7 +160,13 @@ namespace Vendora.Api.Controllers
                     {
                         item.ProductId,
                         ProductName = item.Product != null ? item.Product.Name : "Unknown",
-                        ProductImage = item.Product != null ? item.Product.ImageUrl : "",
+                        ProductImage = item.Product != null
+                            ? (item.Product.Images.Any(img => img.IsPrimary)
+                                ? item.Product.Images.First(img => img.IsPrimary).ImageUrl
+                                : (item.Product.Images.Any()
+                                    ? item.Product.Images.OrderBy(img => img.DisplayOrder).First().ImageUrl
+                                    : ""))
+                            : "",
                         item.Quantity,
                         item.UnitPrice
                     })
@@ -193,15 +200,19 @@ namespace Vendora.Api.Controllers
                     order.PaymentStatus,
                     order.CreatedAt,
                     order.ShippingAddress,
-                    CustomerName = order.User != null ? order.User.FirstName + " " + order.User.LastName : "Unknown",
-                    CustomerEmail = order.User != null ? order.User.Email : "Unknown",
+                    CustomerName = order.User != null ? order.User.FirstName + " " + order.User.LastName : "Deleted Account",
+                    CustomerEmail = order.User != null ? order.User.Email : "N/A",
                     // REQ-74: Customer profile info accessible from order details
                     CustomerId = order.UserId,
                     CustomerSince = order.User != null ? order.User.CreatedAt : DateTime.MinValue,
-                    CustomerOrderCount = _context.Orders.Count(o => o.UserId == order.UserId),
-                    CustomerTotalSpent = _context.Orders
-                        .Where(o => o.UserId == order.UserId && o.Status != "Cancelled")
-                        .Sum(o => o.TotalAmount),
+                    CustomerOrderCount = order.UserId.HasValue
+                        ? _context.Orders.Count(o => o.UserId == order.UserId)
+                        : 0,
+                    CustomerTotalSpent = order.UserId.HasValue
+                        ? _context.Orders
+                            .Where(o => o.UserId == order.UserId && o.Status != "Cancelled")
+                            .Sum(o => o.TotalAmount)
+                        : 0m,
                     ItemsCount = order.Items.Count,
                     Items = order.Items.Select(item => new
                     {
@@ -268,6 +279,11 @@ namespace Vendora.Api.Controllers
             if (order.Status == "Cancelled")
             {
                 return BadRequest("Order is already cancelled.");
+            }
+
+            if (order.Status == "Delivered")
+            {
+                return BadRequest("Delivered orders cannot be cancelled.");
             }
 
             order.Status = "Cancelled";
