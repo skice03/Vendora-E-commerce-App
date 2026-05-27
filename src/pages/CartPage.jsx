@@ -3,7 +3,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { formatCurrency } from '../utils/formatters.js';
+import { formatCurrency, resolveImageUrl } from '../utils/formatters.js';
 import { FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import './CartPage.css';
 
@@ -77,7 +77,7 @@ export default function CartPage() {
                             <div className="cart-item__image-wrapper">
                                 {item.image ? (
                                     <img
-                                        src={item.image}
+                                    src={resolveImageUrl(item.image)}
                                         alt={item.name}
                                         className="cart-item__image"
                                         loading="lazy"

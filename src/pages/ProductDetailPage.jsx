@@ -194,8 +194,6 @@ export default function ProductDetailPage() {
                                         alt={`${product.name} - image ${selectedImageIndex + 1}`}
                                     />
                                 );
-                            } else if (product.imageUrl) {
-                                return <img src={resolveImageUrl(product.imageUrl)} alt={product.name} />;
                             } else {
                                 return (
                                     <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem' }}>

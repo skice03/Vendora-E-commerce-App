@@ -1,34 +1,96 @@
-
-
-import { createContext, useContext, useState, useEffect } from 'react';
-import { STORAGE_KEYS, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '../utils/constants.js';
 import { useAuth } from './AuthContext.jsx';
+import { apiGet } from '../utils/api.js';
 
 const CartContext = createContext(null);
 
-/// Provides cart state and actions.
-/// Guest carts are stored in localStorage (REQ-21).
-/// Authenticated user carts will sync with the backend API in future phases.
-export function CartProvider({ children }) {
-    const { isAuthenticated } = useAuth();
-    const [cartItems, setCartItems] = useState([]);
+/// Returns a user-specific localStorage key for cart persistence.
+function getCartStorageKey(userId) {
+    return `vendora_cart_${userId}`;
+}
 
-    // load cart from localStorage on mount
+/// Resolves the current primary image for a product from its images array.
+function resolveProductImage(product) {
+    if (product.images && product.images.length > 0) {
+        const primary = product.images.find(img => img.isPrimary);
+        return primary?.imageUrl || product.images[0]?.imageUrl || '';
+    }
+    return '';
+}
+
+/// Provides cart state and actions.
+/// Each authenticated user has their own persisted cart in localStorage.
+/// Guest visitors see an empty cart and are redirected to login (REQ-20, REQ-21).
+export function CartProvider({ children }) {
+    const { isAuthenticated, user } = useAuth();
+    const [cartItems, setCartItems] = useState([]);
+    const hasRefreshedRef = useRef(false);
+
+    // Load the user's cart when authentication state changes
     useEffect(() => {
-        const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
-        if (savedCart) {
+        hasRefreshedRef.current = false;
+        if (isAuthenticated && user?.id) {
+            // Load cart for this specific user
+            const key = getCartStorageKey(user.id);
+            const savedCart = localStorage.getItem(key);
+            if (savedCart) {
+                try {
+                    setCartItems(JSON.parse(savedCart));
+                } catch {
+                    localStorage.removeItem(key);
+                    setCartItems([]);
+                }
+            } else {
+                setCartItems([]);
+            }
+        } else {
+            // Guest — clear in-memory cart (user's data stays in localStorage)
+            setCartItems([]);
+        }
+    }, [isAuthenticated, user?.id]);
+
+    // Refresh product images from the API to keep them current
+    useEffect(() => {
+        if (!isAuthenticated || cartItems.length === 0 || hasRefreshedRef.current) {
+            return;
+        }
+        hasRefreshedRef.current = true;
+
+        async function refreshImages() {
             try {
-                setCartItems(JSON.parse(savedCart));
+                const updatedItems = await Promise.all(
+                    cartItems.map(async (item) => {
+                        try {
+                            const product = await apiGet(`/products/${item.productId}`);
+                            return {
+                                ...item,
+                                image: resolveProductImage(product),
+                                name: product.name || item.name,
+                                price: product.price ?? item.price,
+                                stockQuantity: product.stockQuantity ?? item.stockQuantity,
+                            };
+                        } catch {
+                            // Product may have been deleted — keep existing data
+                            return item;
+                        }
+                    })
+                );
+                setCartItems(updatedItems);
             } catch {
-                localStorage.removeItem(STORAGE_KEYS.CART);
+                // Silently fail — keep existing cart data
             }
         }
-    }, []);
+        refreshImages();
+    }, [isAuthenticated, cartItems.length]);
 
-    // persist cart to localStorage whenever it changes
+    // Persist cart to user-specific localStorage whenever it changes
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
-    }, [cartItems]);
+        if (isAuthenticated && user?.id) {
+            const key = getCartStorageKey(user.id);
+            localStorage.setItem(key, JSON.stringify(cartItems));
+        }
+    }, [cartItems, isAuthenticated, user?.id]);
 
     /// Add a product to the cart, or increment quantity if it already exists.
     /// Validates against available stock (REQ-19).
@@ -69,7 +131,7 @@ export function CartProvider({ children }) {
                     productId: product.id,
                     name: product.name,
                     price: product.price,
-                    image: product.imageUrl || product.images?.[0] || '',
+                    image: resolveProductImage(product),
                     quantity: quantity,
                     stockQuantity: product.stockQuantity,
                 },
@@ -105,9 +167,13 @@ export function CartProvider({ children }) {
     }
 
     /// Clear the entire cart (used after successful checkout — REQ-29)
-    function clearCart() {
+    const clearCart = useCallback(() => {
         setCartItems([]);
-    }
+        // Also remove from localStorage to prevent stale data
+        if (isAuthenticated && user?.id) {
+            localStorage.removeItem(getCartStorageKey(user.id));
+        }
+    }, [isAuthenticated, user?.id]);
 
     // ---- Computed Values (REQ-22) ----
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);

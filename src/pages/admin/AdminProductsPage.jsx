@@ -213,10 +213,18 @@ export default function AdminProductsPage() {
 
     // Get the display image URL for a product
     function getProductImageUrl(product) {
-        const primaryImg = product.images?.find(img => img.isPrimary);
-        const firstImg = product.images?.[0];
-        const url = primaryImg?.imageUrl || firstImg?.imageUrl || product.imageUrl;
-        return resolveImageUrl(url);
+        // If the product has an images array, use it exclusively
+        if (product.images && product.images.length > 0) {
+            const primaryImg = product.images.find(img => img.isPrimary);
+            const firstImg = product.images[0];
+            return resolveImageUrl(primaryImg?.imageUrl || firstImg?.imageUrl);
+        }
+        // If images array exists but is empty → all images were deleted
+        if (product.images && product.images.length === 0) {
+            return null;
+        }
+        // Fallback for products without the images array (legacy)
+        return product.imageUrl ? resolveImageUrl(product.imageUrl) : null;
     }
 
     if (isLoading && products.length === 0) {

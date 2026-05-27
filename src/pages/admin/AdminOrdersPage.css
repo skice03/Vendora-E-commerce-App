@@ -2,6 +2,56 @@
     /* Styles are mostly shared with AdminProductsPage */
 }
 
+/* ---- Order Action Buttons ---- */
+.order-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.order-action-btn svg {
+    flex-shrink: 0;
+}
+
+.order-action-btn--view {
+    background: var(--color-gray-100, #f3f4f6);
+    color: var(--color-gray-700, #374151);
+    border-color: var(--color-gray-200, #e5e7eb);
+}
+
+.order-action-btn--view:hover {
+    background: var(--primary-color, #6c5ce7);
+    color: white;
+    border-color: var(--primary-color, #6c5ce7);
+}
+
+.order-action-btn--cancel {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.order-action-btn--cancel:hover {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
 .status-select {
     padding: 0.25rem 0.5rem;
     border-radius: var(--border-radius-sm);

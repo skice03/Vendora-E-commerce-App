@@ -30,5 +30,10 @@ namespace Vendora.Api.Models
         /// Tracks total page views (REQ-55).
         /// </summary>
         public int ViewCount { get; set; } = 0;
+
+        /// <summary>
+        /// Navigation property for the product's image gallery (REQ-54).
+        /// </summary>
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
     }
 }

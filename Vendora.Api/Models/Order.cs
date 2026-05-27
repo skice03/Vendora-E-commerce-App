@@ -30,7 +30,7 @@ namespace Vendora.Api.Models
         /// </summary>
         public string PaymentStatus { get; set; } = "Unpaid";
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User? User { get; set; }
 
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

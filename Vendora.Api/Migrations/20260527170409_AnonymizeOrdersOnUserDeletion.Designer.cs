@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendora.Api.Data;
 
@@ -10,9 +11,11 @@ using Vendora.Api.Data;
 namespace Vendora.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527170409_AnonymizeOrdersOnUserDeletion")]
+    partial class AnonymizeOrdersOnUserDeletion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,7 +395,7 @@ namespace Vendora.Api.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 27, 19, 24, 10, 740, DateTimeKind.Utc).AddTicks(6600),
+                            CreatedAt = new DateTime(2026, 5, 27, 17, 4, 9, 348, DateTimeKind.Utc).AddTicks(8500),
                             Email = "admin@vendora.com",
                             FirstName = "Admin",
                             LastName = "Vendora",
@@ -500,7 +503,7 @@ namespace Vendora.Api.Migrations
             modelBuilder.Entity("Vendora.Api.Models.ProductImage", b =>
                 {
                     b.HasOne("Vendora.Api.Models.Product", "Product")
-                        .WithMany("Images")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -556,11 +559,6 @@ namespace Vendora.Api.Migrations
             modelBuilder.Entity("Vendora.Api.Models.Order", b =>
                 {
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Vendora.Api.Models.Product", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

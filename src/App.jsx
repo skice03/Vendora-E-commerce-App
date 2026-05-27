@@ -51,12 +51,12 @@ export default function App() {
                   <Route path="/register" element={<Register />} />
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/:id" element={<ProductDetailPage />} />
-                  <Route path="/cart" element={<CartPage />} />
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/returns" element={<ReturnsPage />} />
 
                   {/* Protected Customer Routes — redirect to /login if not authenticated */}
                   <Route element={<ProtectedRoute />}>
+                    <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/checkout/success" element={<OrderConfirmationPage />} />
                     <Route path="/orders" element={<MyOrdersPage />} />

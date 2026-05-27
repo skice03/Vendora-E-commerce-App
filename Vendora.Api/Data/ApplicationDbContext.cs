@@ -40,6 +40,13 @@ namespace Vendora.Api.Data
                 .Property(order => order.TotalAmount)
                 .HasPrecision(10, 2);
 
+            // REQ-45: Preserve orders when user is deleted (GDPR anonymization)
+            modelBuilder.Entity<Order>()
+                .HasOne(order => order.User)
+                .WithMany()
+                .HasForeignKey(order => order.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<OrderItem>()
                 .Property(item => item.UnitPrice)
                 .HasPrecision(10, 2);
