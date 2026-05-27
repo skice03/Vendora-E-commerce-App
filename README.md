@@ -1,4 +1,4 @@
-# Vendora — E-Commerce Platform
+# Vendora E-Commerce Platform
 
 A full-stack e-commerce web application for managing products, customers, orders, and payments.
 
