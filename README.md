@@ -33,17 +33,21 @@ Make sure MySQL is running on `localhost:3306`. Then edit the connection string 
 }
 ```
 
-### 2. Stripe (optional — for payment processing)
+### 2. Stripe (required for payment processing)
 
-Set your Stripe **test mode** secret key in the same file:
+The Stripe secret key must **never** be committed to source control. The project uses [.NET User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) to store it securely on your machine.
 
-```json
-"Stripe": {
-    "SecretKey": "sk_test_..."
-}
+```bash
+# From the Vendora.Api directory, set your Stripe test-mode secret key:
+cd Vendora.Api
+dotnet user-secrets set "Stripe:SecretKey" "sk_test_YOUR_KEY_HERE"
 ```
 
-> Use [Stripe Test Mode](https://docs.stripe.com/testing) with card `4242 4242 4242 4242`, any future expiry, and any CVC.
+This stores the key in `~/.microsoft/usersecrets/<UserSecretsId>/secrets.json` — outside the repository. The `UserSecretsId` is already configured in [`Vendora.Api.csproj`](Vendora.Api/Vendora.Api.csproj).
+
+> **Alternative:** You can also set the key directly in [`appsettings.json`](Vendora.Api/appsettings.json) for local development (the placeholder `YOUR_STRIPE_SECRET_KEY_HERE` is there by default), but make sure you **do not commit** the file with a real key.
+
+> **Testing payments:** Use [Stripe Test Mode](https://docs.stripe.com/testing) with card `4242 4242 4242 4242`, any future expiry date, and any 3-digit CVC.
 
 ---
 
