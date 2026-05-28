@@ -35,3 +35,7 @@ dist-ssr
 *.sqlite
 *.sqlite3
 backups/
+
+# User-uploaded media (generated at runtime, not source code)
+Vendora.Api/wwwroot/uploads/products/*
+!Vendora.Api/wwwroot/uploads/products/.gitkeep
